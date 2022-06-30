@@ -1,128 +1,161 @@
-# _ChRIS_ Plugin Template
+# UniRep-analysis
+Analysis and figure code from Alley et al. 2019.
 
-This is a minimal template repository for _ChRIS_ plugin applications in Python.
-
-## About _ChRIS_ Plugins
-
-A _ChRIS_ plugin is a scientific data-processing software which can run anywhere all-the-same:
-in the cloud via a [web app](https://github.com/FNNDSC/ChRIS_ui/), or on your own laptop
-from the terminal. They are easy to build and easy to understand: most simply, a
-_ChRIS_ plugin is a command-line program which processes data from an input directory
-and creates data to an output directory with the usage
-`commandname [options...] inputdir/ outputdir/`.
-
-For more information, visit our website https://chrisproject.org
-
-## How to Use This Template
-
-Go to https://github.com/FNNDSC/python-chrisapp-template and click "Use this template".
-The newly created repository is ready to use right away.
-
-A script `bootstrap.sh` is provided to help fill in and rename values for your new project.
-It is optional to use.
-
-1. Edit the variables in `bootstrap.sh`
-2. Run `./bootstrap.sh`
-3. Follow the instructions it will print out
-
-## Example Plugins
-
-Here are some good, complete examples of _ChRIS_ plugins created from this template.
-
-- https://github.com/FNNDSC/pl-nums2mask
-- https://github.com/FNNDSC/pl-nii2mnc-u8
-- https://github.com/FNNDSC/pl-dcm2niix
-
-## What's Inside
-
-| Path                       | Purpose                                                                                                                                                                                                  |
-|----------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `app.py`                   | main script                                                                                                                                                                                              |
-| `setup.py`                 | [Python project metadata and installation script](https://packaging.python.org/en/latest/guides/distributing-packages-using-setuptools/#setup-py)                                                        |
-| `requirements.txt`         | List of Python dependencies                                                                                                                                                                              |
-| `Dockerfile`               | [Container image build recipe](https://docs.docker.com/engine/reference/builder/)                                                                                                                        |
-| `.github/workflows/ci.yml` | "continuous integration" using [Github Actions](https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions): automatic testing, building, and uploads to https://chrisstore.co |
-
-
-<!-- BEGIN README TEMPLATE
-
-# ChRIS Plugin Title
-
-[![Version](https://img.shields.io/docker/v/fnndsc/pl-appname?sort=semver)](https://hub.docker.com/r/fnndsc/pl-appname)
-[![MIT License](https://img.shields.io/github/license/fnndsc/pl-appname)](https://github.com/FNNDSC/pl-appname/blob/main/LICENSE)
-[![ci](https://github.com/FNNDSC/pl-appname/actions/workflows/ci.yml/badge.svg)](https://github.com/FNNDSC/pl-appname/actions/workflows/ci.yml)
-
-`pl-appname` is a [_ChRIS_](https://chrisproject.org/)
-_ds_ plugin which takes in ...  as input files and
-creates ... as output files.
-
-## Abstract
-
-...
-
-## Installation
-
-`pl-appname` is a _[ChRIS](https://chrisproject.org/) plugin_, meaning it can
-run from either within _ChRIS_ or the command-line.
-
-[![Get it from chrisstore.co](https://ipfs.babymri.org/ipfs/QmaQM9dUAYFjLVn3PpNTrpbKVavvSTxNLE5BocRCW1UoXG/light.png)](https://chrisstore.co/plugin/pl-appname)
-
-## Local Usage
-
-To get started with local command-line usage, use [Apptainer](https://apptainer.org/)
-(a.k.a. Singularity) to run `pl-appname` as a container:
-
-```shell
-singularity exec docker://fnndsc/pl-appname commandname [--args values...] input/ output/
+Start by cloning the repo:
+```
+git clone https://github.com/churchlab/UniRep-analysis.git
 ```
 
-To print its available options, run:
+# Requirements
+python: 3.5.2
 
-```shell
-singularity exec docker://fnndsc/pl-appname commandname --help
+For reference on how to install, see https://askubuntu.com/questions/682869/how-do-i-install-a-different-python-version-using-apt-get
+
+venv with necessary requirements, can be installed with:
+```
+cd UniRep-analysis # root directory of the repository
+python3 -m venv venv/
+source venv/bin/activate
+pip install -r venv_requirements/requirements-py3.txt
+deactivate
 ```
 
-## Examples
-
-`commandname` requires two positional arguments: a directory containing
-input data, and a directory where to create output data.
-First, create the input directory and move input data into it.
-
-```shell
-mkdir incoming/ outgoing/
-mv some.dat other.dat incoming/
-singularity exec docker://fnndsc/pl-appname:latest commandname [--args] incoming/ outgoing/
+conda, can be installed with:
+```
+wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+bash Miniconda3-latest-Linux-x86_64.sh
+# restart the currrent shell
 ```
 
-## Development
-
-Instructions for developers.
-
-### Building
-
-Build a local container image:
-
-```shell
-docker build -t localhost/fnndsc/pl-appname .
+two conda environments necessary to run different parts of the code:
+```
+cd UniRep-analysis # root directory of the repository
+conda env create -f ./yml/grig_alldatasets_run.yml
+conda env create -f ./yml/ethan_analysis.yml
 ```
 
-### Get JSON Representation
+# Getting the data
+```
+mkdir data
+cd data
 
-Run [`chris_plugin_info`](https://github.com/FNNDSC/chris_plugin#usage)
-to produce a JSON description of this plugin, which can be uploaded to a _ChRIS Store_.
+wget https://s3.us-east-2.amazonaws.com/unirep-data-storage/unirep_analysis_data_part2.tar.gz
+tar -zxvf unirep_analysis_data_part2.tar.gz # this may take some time
+mv data/* ./
+rm unirep_analysis_data_part2.tar.gz
 
-```shell
-docker run --rm localhost/fnndsc/pl-appname chris_plugin_info > chris_plugin_info.json
+wget https://s3.amazonaws.com/unirep-public/unirep_analysis_data.zip
+unzip unirep_analysis_data.zip # may need to install unzip with sudo apt install unzip
+mv unirep_analysis_data/* ./
+rm unirep_analysis_data.zip
+
+cd ..
 ```
 
-### Local Test Run
-
-Mount the source code `app.py` into a container to test changes without rebuild.
-
-```shell
-docker run --rm -it --userns=host -u $(id -u):$(id -g) \
-    -v $PWD/app.py:/usr/local/lib/python3.10/site-packages/app.py:ro \
-    -v $PWD/in:/incoming:ro -v $PWD/out:/outgoing:rw -w /outgoing \
-    localhost/fnndsc/pl-appname commandname /incoming /outgoing
+# Project Structure
 ```
-END README TEMPLATE -->
+.
+├── analysis
+│   ├── analysis_unsupervised_clustering_oxbench_homstrad.ipynb # ethan_analysis
+│   ├── FINAL_compute_std_by_val_resampling.py # grig_alldatasets_run
+│   ├── FINAL_run_l1_regr_quant_function_stability_and_supp_analyses.py # grig_alldatasets_run
+│   ├── FINAL_run_RF_homology_detection.py # grig_alldatasets_run
+│   └── FINAL_run_transfer_analysis_function_prediction__stability.py # grig_alldatasets_run
+├── figures
+│   ├── figure2
+│   │   ├── fig_1a.ipynb # ethan_analysis
+│   │   ├── fig2b_supp_fig2_upper.ipynb # ethan_analysis
+│   │   ├── fig2c.ipynb # ethan_analysis
+│   │   ├── fig2e_supp_fig4-5.ipynb # ethan_analysis
+│   │   ├── FINAL_Fig2d_AND_SupTableS2_Homology_detection.ipynb # grig_alldatasets_run
+│   │   ├── FINAL_Fig2g_alpha-beta_neuron.ipynb # grig_alldatasets_run
+│   │   ├── supp_fig2.ipynb # ethan_analysis
+│   │   └── supp_fig3.ipynb # ethan_analysis
+│   ├── figure3
+│   │   ├── fig3b.ipynb # ethan_analysis
+│   │   ├── fig3c.ipynb # ethan_analysis
+│   │   ├── FINAL_Fig_3a_Rosetta_comparison.ipynb # grig_alldatasets_run
+│   │   ├── FINAL_Fig3e_Quant_function_prediction_Fig3b_stability_ssm2_significance_SuppTableS4-5.ipynb # grig_alldatasets_run
+│   │   └── supp_fig8.ipynb # ethan_analysis
+│   ├── figure4 
+│   │   ├── A007h_budget_constrained_functional_sequence_recovery_analysis.ipynb # venv
+│   │   ├── A007j_pred_v_actual_fpbase_plots.ipynb # venv
+│   │   ├── A008c_visualize_ss_feature_predictors_on_protein.ipynb # venv
+│   │   ├── common.py
+│   │   ├── supp_fig10a_partial_and_e.ipynb # ethan_analysis
+│   │   ├── supp_fig10a_partial_and_f.ipynb # ethan_analysis
+│   │   ├── supp_fig10b-d_left.ipynb # ethan_analysis
+│   │   ├── supp_fig10b-d_right.ipynb # ethan_analysis
+│   │   └── supp_fig_10g_10h.ipynb # venv
+│   └── other
+│       ├── FINAL_supp_data_3_2_1__supp_fig_S9__Supp_fig_s12.ipynb # grig_alldatasets_run
+│       ├── FINAL_SuppFigS1_Seq_db_growth.ipynb # grig_alldatasets_run
+│       └── supp_fig13.ipynb # ethan_analysis
+├── common
+├── common_v2
+├── README.md
+├── venv_requirements
+└── yml
+```
+
+# Usage
+## Reproducing figures
+
+To re-generate all the figures in the main text, one should execute jupyter/ipython notebooks in the /figures directory using the right environment.
+
+To run a notebook, do the following:
+
+Activate the right environment (as noted in the Project Structure section for each notebook):
+
+For grig_alldatasets_run:
+```
+source activate grig_alldatasets_run
+```
+For ethan_analysis:
+```
+source activate ethan_analysis
+```
+For venv:
+```
+source venv/bin/activate
+```
+
+Then execute:
+```
+jupyter notebook
+```
+This will automatically open a browser window where one can interactively rerun the code generating the figures. Aesthetic components (colors, font sizes) may differ slightly from the final version of the figures in the paper.
+
+## Re-training top models and re-generating performance metrics
+
+In order to re-train the models and regenerate the metrics from which the figures are constructed, one can run the python scripts in the /analysis folder. By default these will evaluate all representations and baselines on all available datasets and subsets and will computer metrics (such as MSE and Pearson r) on the test subset.
+
+The easiest way is to do this is to start an AWS instance with sufficient resources (we recommend m5.12xlarge or m5.24xlarge for shorter runtime - the code takes advantage of all the available CPU cores) with Ubuntu Server 18.04 LTS AMI (for example, ami-0f65671a86f061fcd). After performing the initial setup above, create the necessary directories:
+```
+cd analysis
+mkdir results # folder for various model performance metrics
+mkdir predictions # folder for model predictions for various datasets
+mkdir models # folder for trained models
+mkdir params # folder for recording best parameters after hyperparameter search 
+```
+
+Activate the right environment:
+```
+source activate grig_alldatasets_run
+```
+
+To run SCOP 1.67 Superfamily Remote Homology Detection and SCOP 1.67 Fold-level Similarity Detection with Random Forest, execute:
+```
+python FINAL_run_RF_homology_detection.py
+```
+
+To run quantitative function prediction, de novo designed mini proteins stability prediction, DMS stability prediction for 17 de novo designed and natural protein datasets from Figure 3, as well as supplementary benchmarks, such as small-scale function prediction (Supp. Table S4):
+```
+python FINAL_run_l1_regr_quant_function_stability_and_supp_analyses.py
+python FINAL_compute_std_by_val_resampling.py # computes estimates of standard deviations through validation/test set resampling for significance testing (generates std_results_val_resamp.csv)
+```
+
+To run the analyses from Supp. Fig. S10 (generalized stability prediction, generalized quantitative function prediction and a special central to remote generalized stability prediction task):
+```
+python FINAL_run_transfer_analysis_function_prediction__stability.py
+```
