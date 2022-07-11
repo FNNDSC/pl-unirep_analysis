@@ -19,7 +19,7 @@ np.random.seed(42)
 
 from sklearn.linear_model import LassoLarsCV, LogisticRegressionCV
 from sklearn.metrics import mean_squared_error, accuracy_score, r2_score, explained_variance_score
-from sklearn.externals import joblib
+import joblib
 from sklearn.preprocessing import StandardScaler
 
 # To allow imports from common directory
@@ -101,9 +101,12 @@ metrics = {
 
 #  the below is aparently what one has to do to import a local file into a module
 import pkgutil
-subsets = pkgutil.get_data(__package__, 'subsets.pkl')
+from os.path import exists
+
+#subsets = open('/usr/local/src/common_v2/subsets.pkl', "rb")
+
 from io import BytesIO
-subsets = pd.read_pickle(BytesIO(subsets))
+subsets = pd.read_pickle('/usr/local/src/common_v2/subsets.pkl')
 
 none_model_reps = ['mean']
 

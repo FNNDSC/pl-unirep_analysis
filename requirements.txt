@@ -1,1 +1,9 @@
-chris_plugin==0.1.0
+chrisapp~=2.5.3
+nose~=1.3.7
+numpy
+pandas
+dask
+sklearn
+nltk
+bio
+scikit_optimize

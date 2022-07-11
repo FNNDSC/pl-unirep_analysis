@@ -1,18 +1,36 @@
-# Python version can be changed, e.g.
-# FROM python:3.8
-# FROM docker.io/fnndsc/conda:python3.10.2-cuda11.6.0
-FROM docker.io/python:3.10.4-slim-buster
+# Docker file for unirep_analysis ChRIS plugin app
+#
+# Build with
+#
+#   docker build -t <name> .
+#
+# For example if building a local version, you could do:
+#
+#   docker build -t local/pl-unirep_analysis .
+#
+# In the case of a proxy (located at 192.168.13.14:3128), do:
+#
+#    docker build --build-arg http_proxy=http://192.168.13.14:3128 --build-arg UID=$UID -t local/pl-unirep_analysis .
+#
+# To run an interactive shell inside this container, do:
+#
+#   docker run -ti --entrypoint /bin/bash local/pl-unirep_analysis
+#
+# To pass an env var HOST_IP to container, do:
+#
+#   docker run -ti -e HOST_IP=$(ip route | grep -v docker | awk '{if(NF==11) print $9}') --entrypoint /bin/bash local/pl-unirep_analysis
+#
 
-LABEL org.opencontainers.image.authors="FNNDSC <dev@babyMRI.org>" \
-      org.opencontainers.image.title="ChRIS Plugin Title" \
-      org.opencontainers.image.description="A ChRIS plugin that..."
+FROM fnndsc/ubuntu-python3:latest
+LABEL maintainer="Sandip Samal <dev@babyMRI.org>"
 
-WORKDIR /usr/local/src/app
+WORKDIR /usr/local/src
 
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 COPY . .
-RUN pip install .
 
-CMD ["commandname", "--help"]
+RUN pip install pip --upgrade && pip install .
+
+CMD ["unirep_analysis", "--help"]

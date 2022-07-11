@@ -15,7 +15,7 @@ import sys
 sys.path.append('../')
 
 import common_v2.validation_tools as validation_tools
-import joblib
+from sklearn.externals import joblib
 import os
 
 from sklearn.metrics import mean_squared_error, accuracy_score, r2_score, explained_variance_score, roc_auc_score
@@ -32,73 +32,8 @@ from common_v2.validation_tools import subsets, regr_datasets, reps, none_model_
 from skopt.space import Real, Categorical, Integer
 
 import random
-  
-    
-class Analysis_one():
-    def get_remote_homology_split(self,merged_df, family_name):
 
-        test_positive =  merged_df[merged_df[family_name] == 1][['rep','family_name']] #1
-        test_negative =  merged_df[merged_df[family_name] == 2][['rep','family_name']] #2
-        train_positive = merged_df[merged_df[family_name] == 3][['rep','family_name']] #3
-        train_negative = merged_df[merged_df[family_name] == 4][['rep','family_name']] #4
-
-        test_positive.columns = ['rep','target']
-        test_negative.columns = ['rep','target']
-        train_positive.columns = ['rep','target']
-        train_negative.columns = ['rep','target']
-
-        test_positive.loc[:,'target'] = 1
-        test_negative.loc[:,'target'] = 0
-        train_positive.loc[:,'target'] = 1
-        train_negative.loc[:,'target'] = 0
-
-        test_positive.loc[:,'target'] = 1
-        test_negative.loc[:,'target'] = 0
-
-        train_positive.loc[:,'target'] = 1
-        train_negative.loc[:,'target'] = 0
-
-        test = pd.concat([test_negative, test_positive]).sample(frac=1)
-        train = pd.concat([train_negative, train_positive]).sample(frac=1)
-
-        return train, test
-
-    def get_merged_df(d, rep, path):
-
-        all_rep, v, t = validation_tools.get_tvt(path,
-                                             d,
-                                             'full',
-                                             rep,
-                                             dataset_filetype='pkl',
-                                             verbose=True)
-        #scaled automatically
-
-        all_seq, v, t = validation_tools.get_tvt(path,
-                                             d,
-                                             'full',
-                                             'sequence',
-                                              modifiers=[],
-                                             dataset_filetype='pkl',
-                                             verbose=False,
-                                             )
-
-        assert (all_seq.target == all_rep.target).all()
-
-        all_seq.columns = ['seq','family_name']
-
-        sf = pd.concat([all_rep,all_seq],axis=1)[['seq','rep','family_name']]
-
-        merged_df = pd.read_csv(merged_paths[d], index_col='seq')
-
-        sf = sf.set_index('seq')
-
-        merged_df = merged_df.loc[sf.index] # THIS IS TO DROP RGN STRUGGLERS
-
-        merged_df = sf.join(merged_df)
-        merged_df.index.name = 'seq'
-        merged_df = merged_df.reset_index()
-        return merged_df
-
+def analsis_one():
 
     reps = ["avg_hidden"]
 
@@ -253,5 +188,71 @@ class Analysis_one():
     end = time.time()
     print(f"overall time for {model_name} {d}", end - start)
 
+
+    def get_remote_homology_split(merged_df, family_name):
+
+        test_positive =  merged_df[merged_df[family_name] == 1][['rep','family_name']] #1
+        test_negative =  merged_df[merged_df[family_name] == 2][['rep','family_name']] #2
+        train_positive = merged_df[merged_df[family_name] == 3][['rep','family_name']] #3
+        train_negative = merged_df[merged_df[family_name] == 4][['rep','family_name']] #4
+
+        test_positive.columns = ['rep','target']
+        test_negative.columns = ['rep','target']
+        train_positive.columns = ['rep','target']
+        train_negative.columns = ['rep','target']
+
+        test_positive.loc[:,'target'] = 1
+        test_negative.loc[:,'target'] = 0
+        train_positive.loc[:,'target'] = 1
+        train_negative.loc[:,'target'] = 0
+
+        test_positive.loc[:,'target'] = 1
+        test_negative.loc[:,'target'] = 0
+
+        train_positive.loc[:,'target'] = 1
+        train_negative.loc[:,'target'] = 0
+
+        test = pd.concat([test_negative, test_positive]).sample(frac=1)
+        train = pd.concat([train_negative, train_positive]).sample(frac=1)
+
+        return train, test
+
+    def get_merged_df(d, rep, path):
+
+        all_rep, v, t = validation_tools.get_tvt(path,
+                                             d,
+                                             'full',
+                                             rep,
+                                             dataset_filetype='pkl',
+                                             verbose=True)
+        #scaled automatically
+
+        all_seq, v, t = validation_tools.get_tvt(path,
+                                             d,
+                                             'full',
+                                             'sequence',
+                                              modifiers=[],
+                                             dataset_filetype='pkl',
+                                             verbose=False,
+                                             )
+
+        assert (all_seq.target == all_rep.target).all()
+
+        all_seq.columns = ['seq','family_name']
+
+        sf = pd.concat([all_rep,all_seq],axis=1)[['seq','rep','family_name']]
+
+        merged_df = pd.read_csv(merged_paths[d], index_col='seq')
+
+        sf = sf.set_index('seq')
+
+        merged_df = merged_df.loc[sf.index] # THIS IS TO DROP RGN STRUGGLERS
+
+        merged_df = sf.join(merged_df)
+        merged_df.index.name = 'seq'
+        merged_df = merged_df.reset_index()
+        return merged_df
+
+    
 
     
