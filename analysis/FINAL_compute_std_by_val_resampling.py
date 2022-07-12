@@ -70,57 +70,57 @@ import numpy as np
 
 import random
 
-random.seed(42)
-np.random.seed(42)
+class Analysis_one():
+    random.seed(42)
+    np.random.seed(42)
 
-path_to_pieces = f"../../data/pieces_new/"
+    path_to_pieces = f"../../data/pieces_new/"
 
-n_resamp = 30
+    n_resamp = 30
 
-std_results = pd.DataFrame(columns=metrics.keys())
+    std_results = pd.DataFrame(columns=metrics.keys())
 
-print(reps)
+    print(reps)
 
-for run_type in {'validate','test'}:
+    for run_type in {'validate','test'}:
+        for d in regr_datasets:
+            ss = list(subsets[d])
+            if len(subsets[d]) > 1:
+                ss = ss + ['full']
 
-    for d in regr_datasets:
-        ss = list(subsets[d])
-        if len(subsets[d]) > 1:
-            ss = ss + ['full']
+                for s in  ss:
+                    print(d,s)
+                    name = f"{'__'.join([d,s])}.pkl"
+                    path = os.path.join(path_to_pieces,name)
+                    train, validate, test = common_v2.validation_tools.get_tvt(path,
+		                                                     d,
+		                                                     s,
+		                                                     '64_avg_hidden', dataset_filetype='pkl', verbose=False)
 
-        for s in  ss:
-            print(d,s)
-            name = f"{'__'.join([d,s])}.pkl"
-            path = os.path.join(path_to_pieces,name)
-            train, validate, test = common_v2.validation_tools.get_tvt(path,
-                                                             d,
-                                                             s,
-                                                             '64_avg_hidden', dataset_filetype='pkl', verbose=False)
+                    if run_type == 'test':
+                        validate = test.copy()
 
-            if run_type == 'test':
-                validate = test.copy()
+                    for rep in reps:
+                        print(rep)
 
-            for rep in reps:
-                print(rep)
+                        res_df_for_std = []
+                        predictions = np.load(f"./predictions/{d}__{s}__{rep}__{run_type}__predictions.npy")
 
-                res_df_for_std = []
-                predictions = np.load(f"./predictions/{d}__{s}__{rep}__{run_type}__predictions.npy")
+                        for i in range(n_resamp):
 
-                for i in range(n_resamp):
+                            ind = validate.reset_index().sample(frac=1.0/2, random_state=i).index
 
-                    ind = validate.reset_index().sample(frac=1.0/2, random_state=i).index
+                            results = pd.Series()
 
-                    results = pd.Series()
+                            for metric_name in metrics.keys():
 
-                    for metric_name in metrics.keys():
+                                results.loc[metric_name] = metrics[metric_name](
+		                           validate['target'].iloc[ind],
+		                           predictions[ind])
 
-                        results.loc[metric_name] = metrics[metric_name](
-                                   validate['target'].iloc[ind],
-                                   predictions[ind])
+                        res_df_for_std.append(results)
 
-                    res_df_for_std.append(results)
+                        std_results.loc[f"{d}__{s}__{rep}__{run_type}"] = pd.concat(res_df_for_std, axis=1).std(axis=1)
 
-                std_results.loc[f"{d}__{s}__{rep}__{run_type}"] = pd.concat(res_df_for_std, axis=1).std(axis=1)
-
-std_results.to_csv("std_results_val_resamp.csv")
+    std_results.to_csv("std_results_val_resamp.csv")
 

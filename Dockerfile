@@ -21,7 +21,7 @@
 #   docker run -ti -e HOST_IP=$(ip route | grep -v docker | awk '{if(NF==11) print $9}') --entrypoint /bin/bash local/pl-unirep_analysis
 #
 
-FROM fnndsc/ubuntu-python3:latest
+FROM python:3.9.1-slim-buster
 LABEL maintainer="Sandip Samal <dev@babyMRI.org>"
 
 WORKDIR /usr/local/src
@@ -30,7 +30,6 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 COPY . .
-
-RUN pip install pip --upgrade && pip install .
+RUN pip install .
 
 CMD ["unirep_analysis", "--help"]

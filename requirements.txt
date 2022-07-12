@@ -7,3 +7,7 @@ sklearn
 nltk
 bio
 scikit_optimize
+seaborn
+Levenshtein
+fastcluster
+gensim

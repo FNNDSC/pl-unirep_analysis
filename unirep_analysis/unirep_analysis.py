@@ -9,7 +9,10 @@
 #
 
 from chrisapp.base import ChrisApp
-from analysis.FINAL_run_RF_homology_detection import analysis_one
+#from analysis.FINAL_compute_std_by_val_resampling import Analysis_one
+#from analysis.FINAL_run_l1_regr_quant_function_stability_and_supp_analyses import Analysis_two
+#from analysis.FINAL_run_RF_homology_detection import Analysis_three
+from analysis.FINAL_run_transfer_analysis_function_prediction_stability import Analysis_four
 
 Gstr_title = r"""
              _                                  _           _     
@@ -126,7 +129,7 @@ class Unirep_analysis(ChrisApp):
         """
         print(Gstr_title)
         print('Version: %s' % self.get_version())
-        Analysis_one()
+        Analysis_four()
 
     def show_man_page(self):
         """

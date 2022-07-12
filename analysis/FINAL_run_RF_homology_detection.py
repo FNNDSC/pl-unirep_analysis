@@ -34,7 +34,7 @@ from skopt.space import Real, Categorical, Integer
 import random
   
     
-class Analysis_one():
+class Analysis_three():
     def get_remote_homology_split(self,merged_df, family_name):
 
         test_positive =  merged_df[merged_df[family_name] == 1][['rep','family_name']] #1

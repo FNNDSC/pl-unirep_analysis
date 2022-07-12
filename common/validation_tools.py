@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+
 """ Module with functions for the validate pipeline
 
 Created on Sat Aug 18 09:10:53 2018
