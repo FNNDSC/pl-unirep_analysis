@@ -71,11 +71,12 @@ import numpy as np
 import random
 
 class Analysis_one():
+  def __init__(self,incoming,outgoing):
     random.seed(42)
     np.random.seed(42)
 
-    path_to_pieces = f"../../data/pieces_new/"
-
+    path_to_pieces = incoming
+    
     n_resamp = 30
 
     std_results = pd.DataFrame(columns=metrics.keys())

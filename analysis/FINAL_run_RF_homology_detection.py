@@ -63,7 +63,7 @@ class Analysis_three():
 
         return train, test
 
-    def get_merged_df(d, rep, path):
+    def get_merged_df(self,d, rep, path):
 
         all_rep, v, t = validation_tools.get_tvt(path,
                                              d,
@@ -100,23 +100,26 @@ class Analysis_three():
         return merged_df
 
 
-    reps = ["avg_hidden"]
+    
+    def __init__(self,incoming,outgoing):
+    
+        reps = ["avg_hidden"]
 
-    num_bayes_it = 75
+        num_bayes_it = 75
 
-    to_train = True
+        to_train = True
 
-    random.seed(42)
-    np.random.seed(42)
+        random.seed(42)
+        np.random.seed(42)
 
-    path_to_pieces = f"../../data/pieces_new/"
-    run_type='validate'
+        path_to_pieces = incoming
+        run_type='validate'
 
-    merged_paths = {
+        merged_paths = {
             "handstad_superfamily":"../../data/Handstad_2007_remote_homology_SCOP_1.67/Handstad_2007_superfamilies_merged.csv",
             "handstad_folds":"../../data/Handstad_2007_remote_homology_SCOP_1.67/Handstad_2007_folds_merged.csv"}
 
-    merged_groups = {
+        merged_groups = {
             "handstad_superfamily":['a.1.1.2', 'a.1.1.3', 'a.3.1.1', 'a.4.1.1', 'a.22.1.1', 'a.22.1.3', 'a.25.1.1',
                                     'a.25.1.2', 'a.26.1.1', 'a.26.1.2', 'a.26.1.3', 'a.39.1.2', 'a.39.1.5',
                                     'a.39.1.8', 'a.138.1.1', 'a.138.1.3', 'b.1.1.1', 'b.1.1.2', 'b.1.1.3',
@@ -145,8 +148,8 @@ class Analysis_three():
                               'd.58.3', 'd.58.5', 'd.58.7', 'd.58.17', 'd.58.26', 'd.79.1', 'd.110.3', 'd.129.1',
                               'd.129.3', 'f.1.4', 'g.3.1', 'g.3.2', 'g.3.6', 'g.3.7', 'g.3.9', 'g.3.11', 'g.3.13',
                               'g.41.3', 'g.41.5']
-    }
-    models={
+        }
+        models={
                             'RF_informedguess':{ 'param_grid':{
                                         'n_estimators':[1000],
                                         'max_features':Real(0.5,1.0),
@@ -160,36 +163,36 @@ class Analysis_three():
                                 }
                         }
 
-    if to_train:
-        model_list = models.keys()
-    else:
-        model_list = ['RF_informedguess']
+        if to_train:
+            model_list = models.keys()
+        else:
+            model_list = ['RF_informedguess']
 
-    for model_name in model_list:
-        print(model_name)
-        m_results={}
-        m_params={}
+        for model_name in model_list:
+            print(model_name)
+            m_results={}
+            m_params={}
 
-        for d in auc_datasets:
-            print(d)
+            for d in auc_datasets:
+                print(d)
 
-            d_results = {}
-            d_params={}
+                d_results = {}
+                d_params={}
 
-            for rep in reps:
-                print(rep)
-                merged_df = get_merged_df(d, rep, os.path.join(path_to_pieces, f"{d}__full.pkl"))
+                for rep in reps:
+                    print(rep)
+                    merged_df = self.get_merged_df(d, rep, os.path.join(path_to_pieces, f"{d}__full.pkl"))
 
-                r_results = {}
-                r_params = {}
+                    r_results = {}
+                    r_params = {}
 
-                for fam_name in merged_groups[d]:
-                    print(fam_name)
-                    train, validate = get_remote_homology_split(merged_df, fam_name)
+                    for fam_name in merged_groups[d]:
+                        print(fam_name)
+                        train, validate = get_remote_homology_split(merged_df, fam_name)
 
-                    try:
-                        if to_train:
-                            model=BayesSearchCV(
+                        try:
+                            if to_train:
+                                model=BayesSearchCV(
                                             models[model_name]['model'](),
                                             models[model_name]['param_grid'],
                                             n_iter=num_bayes_it,
@@ -199,59 +202,59 @@ class Analysis_three():
                                         )
 
 
-                            X = np.asarray(train['rep'].values.tolist())
-                            y = train['target'].values.astype('float64')
+                                X = np.asarray(train['rep'].values.tolist())
+                                y = train['target'].values.astype('float64')
 
-                            model.fit(
+                                model.fit(
                                            X ,
                                             y
 
-                            )
-                            joblib.dump(model, f'./models/auc__{d}__{rep}__{fam_name}__model.pkl')
-                        else:
-                            model = joblib.load(f'./models/auc__{d}__{rep}__{fam_name}__model.pkl')
+                                )
+                                joblib.dump(model, f'./models/auc__{d}__{rep}__{fam_name}__model.pkl')
+                            else:
+                                model = joblib.load(f'./models/auc__{d}__{rep}__{fam_name}__model.pkl')
 
-                        predictions = model.predict(
+                            predictions = model.predict(
 
                                         np.asarray(validate['rep'].values.tolist()),
 
-                        )
+                            )
 
-                        r_results[fam_name] = {
+                            r_results[fam_name] = {
                                 'roc_score':roc_auc_score(validate['target'], predictions),
                                 'roc50_score':get_roc(validate['target'].values, predictions, 50)
                             }
-                        print('roc_score', r_results[fam_name]['roc_score'])
-                        print('roc50_score', r_results[fam_name]['roc50_score'])
-                        if to_train:
-                            if model_name != 'NaiveBayes':
-                                r_params[fam_name] = model.best_params_
-                                print(model.best_params_)
+                            print('roc_score', r_results[fam_name]['roc_score'])
+                            print('roc50_score', r_results[fam_name]['roc50_score'])
+                            if to_train:
+                                if model_name != 'NaiveBayes':
+                                    r_params[fam_name] = model.best_params_
+                                    print(model.best_params_)
     
-                    except:
-                      print(f"{d} {rep} {fam_name} ERROR {e}")
-                      r_results[fam_name] = {
-                        'roc_score':np.nan,
-                        'roc50_score':np.nan
-                      }
-                end = time.time()
-                print(end - start)
+                        except:
+                          print(f"{d} {rep} {fam_name} ERROR {e}")
+                          r_results[fam_name] = {
+                            'roc_score':np.nan,
+                            'roc50_score':np.nan
+                          }
+                    end = time.time()
+                    print(end - start)
 
-            d_results[rep] = r_results
-            d_params[rep] = r_params
-            joblib.dump(r_results, f"./results/auc__{model_name}__{d}__{rep}__results.pkl")
-            if to_train:
-                joblib.dump(r_params, f"./params/auc__{model_name}__{d}__{rep}__best_params.pkl")
+                d_results[rep] = r_results
+                d_params[rep] = r_params
+                joblib.dump(r_results, f"./results/auc__{model_name}__{d}__{rep}__results.pkl")
+                if to_train:
+                    joblib.dump(r_params, f"./params/auc__{model_name}__{d}__{rep}__best_params.pkl")
 
-        m_results[d] = d_results
-        m_params[d] = d_params
+            m_results[d] = d_results
+            m_params[d] = d_params
 
-    joblib.dump(m_results, f"./results/auc__{model_name}__all__results.pkl")
-    if to_train:
-        joblib.dump(m_params, f"./params/auc__{model_name}__all__best_params.pkl")
+        joblib.dump(m_results, f"./results/auc__{model_name}__all__results.pkl")
+        if to_train:
+            joblib.dump(m_params, f"./params/auc__{model_name}__all__best_params.pkl")
 
-    end = time.time()
-    print(f"overall time for {model_name} {d}", end - start)
+        end = time.time()
+        print(f"overall time for {model_name} {d}", end - start)
 
 
     

@@ -22,7 +22,8 @@ import common_v2.validation_tools as validation_tools
 
 from sklearn.model_selection import KFold
 class Analysis_two():
-        path_to_pieces = f"../../data/pieces_new/"
+  def __init__(self,incoming,outgoing):
+        path_to_pieces = incoming
         run_type='test'
 
         to_train = True # whether to train or to inference on trained models in models dir

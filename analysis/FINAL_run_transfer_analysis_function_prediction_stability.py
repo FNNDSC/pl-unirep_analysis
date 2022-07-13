@@ -28,7 +28,7 @@ from sklearn.model_selection import KFold
 
 class Analysis_four():
 
-
+  def __init__(self,incoming,outgoing):
     random.seed(42)
     np.random.seed(42)
     baseline_rep = 'simple_freq_and_len' #  DO NOT CHANGE WITHOUT THINKING
@@ -42,7 +42,7 @@ class Analysis_four():
 	 'rocklin_ssm2',
 	 'rocklin_ssm2_remote_test']
 
-    path_to_pieces = f"../../data/pieces_new/"
+    path_to_pieces = incoming
 
     to_train = True
 

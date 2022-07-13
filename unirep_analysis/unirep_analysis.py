@@ -9,9 +9,9 @@
 #
 
 from chrisapp.base import ChrisApp
-#from analysis.FINAL_compute_std_by_val_resampling import Analysis_one
-#from analysis.FINAL_run_l1_regr_quant_function_stability_and_supp_analyses import Analysis_two
-#from analysis.FINAL_run_RF_homology_detection import Analysis_three
+from analysis.FINAL_compute_std_by_val_resampling import Analysis_one
+from analysis.FINAL_run_l1_regr_quant_function_stability_and_supp_analyses import Analysis_two
+from analysis.FINAL_run_RF_homology_detection import Analysis_three
 from analysis.FINAL_run_transfer_analysis_function_prediction_stability import Analysis_four
 
 Gstr_title = r"""
@@ -129,7 +129,42 @@ class Unirep_analysis(ChrisApp):
         """
         print(Gstr_title)
         print('Version: %s' % self.get_version())
-        Analysis_four()
+        # Output the space of CLI
+        d_options = vars(options)
+        for k,v in d_options.items():
+            print("%20s: %-40s" % (k, v))
+        print("")
+        
+        
+        
+        print("\n\n1)Running FINAL_compute_std_by_val_resampling analysis\n\n")
+        try:
+          Analysis_one(options.inputdir,options.outputdir)
+        except Exception as err:
+          print("\n\nERROR:",err)
+          
+          
+          
+        print("\n\n2)Running FINAL_run_l1_regr_quant_function_stability_and_supp_analyses analysis\n\n")
+        try:
+          Analysis_two(options.inputdir,options.outputdir)
+        except Exception as err:
+          print("\n\nERROR:",err)
+           
+           
+        
+        print("\n\n3)Running FINAL_run_RF_homology_detection analysis***\n\n")
+        try:
+          Analysis_three(options.inputdir,options.outputdir)
+        except Exception as err:
+          print("\n\nERROR:",err)
+        
+        
+        print("\n\n4)Running FINAL_run_transfer_analysis_function_prediction_stability analysis***\n\n")
+        try:
+          Analysis_four(options.inputdir,options.outputdir)
+        except Exception as err:
+          print("\n\nERROR:",err)
 
     def show_man_page(self):
         """
