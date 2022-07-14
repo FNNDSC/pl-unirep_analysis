@@ -6,7 +6,7 @@ with open(path.join(path.dirname(path.abspath(__file__)), 'README.rst')) as f:
 
 setup(
     name             = 'unirep_analysis',
-    version          = '0.1',
+    version          = '0.1.1',
     description      = 'An app to ...',
     long_description = readme,
     author           = 'Sandip Samal',
