@@ -21,7 +21,8 @@
 #   docker run -ti -e HOST_IP=$(ip route | grep -v docker | awk '{if(NF==11) print $9}') --entrypoint /bin/bash local/pl-unirep_analysis
 #
 
-FROM python:3.9.1-slim-buster
+#FROM python:3.9.1-slim-buster 
+FROM continuumio/anaconda3:2020.11
 LABEL maintainer="Sandip Samal <dev@babyMRI.org>"
 
 WORKDIR /usr/local/src
