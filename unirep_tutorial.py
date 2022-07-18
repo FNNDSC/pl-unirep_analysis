@@ -38,7 +38,7 @@ if USE_FULL_1900_DIM_MODEL:
     
 else:
     # Sync relevant weight files
-    get_ipython().system('aws s3 sync --no-sign-request --quiet s3://unirep-public/64_weights/ 64_weights/')
+    os.system('aws s3 sync --no-sign-request --quiet s3://unirep-public/64_weights/ 64_weights/')
     
     # Import the mLSTM babbler model
     from unirep import babbler64 as babbler
@@ -65,6 +65,7 @@ b = babbler(batch_size=batch_size, model_path=MODEL_WEIGHT_PATH)
 
 seq = "MRKGEELFTGVVPILVELDGDVNGHKFSVRGEGEGDATNGKLTLKFICTTGKLPVPWPTLVTTLTYGVQCFARYPDHMKQHDFFKSAMPEGYVQERTISFKDDGTYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNFNSHNVYITADKQKNGIKANFKIRHNVEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSVLSKDPNEKRDHMVLLEFVTAAGITHGMDELYK"
 
+
 # In[5]:
 
 
@@ -73,7 +74,7 @@ np.array(b.format_seq(seq))
 
 # We also provide a function that will check your amino acid sequences don't contain any characters which will break the UniRep model.
 
-# In[6]:
+# In[7]:
 
 
 b.is_valid_seq(seq)
@@ -85,7 +86,7 @@ b.is_valid_seq(seq)
 # 
 # Sequence formatting can be done as follows:
 
-# In[7]:
+# In[8]:
 
 
 # Before you can train your model, 
@@ -101,7 +102,7 @@ with open("seqs.txt", "r") as source:
 
 # This is what the integer format looks like
 
-# In[8]:
+# In[9]:
 
 
 os.system('head -n1 formatted.txt')
@@ -119,7 +120,7 @@ os.system('head -n1 formatted.txt')
 # - Automatically padding the sequences with zeros so the returned batch is a perfect rectangle
 # - Automatically repeating the dataset
 
-# In[9]:
+# In[10]:
 
 
 bucket_op = b.bucket_batch_pad("formatted.txt", interval=1000) # Large interval
@@ -129,7 +130,7 @@ bucket_op = b.bucket_batch_pad("formatted.txt", interval=1000) # Large interval
 
 # Now that we have the `bucket_op`, we can simply `sess.run()` it to get a correctly formatted batch
 
-# In[10]:
+# In[11]:
 
 
 with tf.Session() as sess:
@@ -146,7 +147,7 @@ print(batch.shape)
 
 # First, obtain all of the ops needed to output a representation
 
-# In[11]:
+# In[12]:
 
 
 final_hidden, x_placeholder, batch_size_placeholder, seq_length_placeholder, initial_state_placeholder = (
@@ -163,7 +164,7 @@ final_hidden, x_placeholder, batch_size_placeholder, seq_length_placeholder, ini
 # 
 # 3.  Minimizing the loss inside of a TensorFlow session
 
-# In[12]:
+# In[13]:
 
 
 y_placeholder = tf.placeholder(tf.float32, shape=[None,1], name="y")
@@ -181,7 +182,7 @@ loss = tf.losses.mean_squared_error(y_placeholder, prediction)
 
 # You can specifically train the top model first by isolating variables of the "top" scope, and forcing the optimizer to only optimize these.
 
-# In[13]:
+# In[14]:
 
 
 learning_rate=.001
@@ -193,7 +194,7 @@ all_step_op = optimizer.minimize(loss)
 
 # We next need to define a function that allows us to calculate the length each sequence in the batch so that we know what index to use to obtain the right "final" hidden state
 
-# In[14]:
+# In[15]:
 
 
 def nonpad_len(batch):
@@ -206,7 +207,7 @@ nonpad_len(batch)
 
 # We are ready to train. As an illustration, let's learn to predict the number 42 just optimizing the top model.
 
-# In[ ]:
+# In[16]:
 
 
 y = [[42]]*batch_size
@@ -231,7 +232,7 @@ with tf.Session() as sess:
 
 # We can also jointly train the top model and the mLSTM. Note that if using the 1900-unit (full) model, you will need a GPU with at least 16GB RAM. To see a demonstration of joint training with fewer computational resources, please run this notebook using the 64-unit model.
 
-# In[ ]:
+# In[17]:
 
 
 y = [[42]]*batch_size

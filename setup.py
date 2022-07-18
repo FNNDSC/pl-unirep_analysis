@@ -12,13 +12,13 @@ setup(
     author           = 'Sandip Samal',
     author_email     = 'dev@babyMRI.org',
     url              = 'http://wiki',
-    packages         = ['unirep_analysis','analysis','common','common_v2'],
+    packages         = ['unirep_analysis','analysis','data'],
     install_requires = ['chrisapp'],
     test_suite       = 'nose.collector',
     tests_require    = ['nose'],
     license          = 'MIT',
     zip_safe         = False,
-    python_requires  = '>=3.6',
+    python_requires  = '>=3.5',
     entry_points     = {
         'console_scripts': [
             'unirep_analysis = unirep_analysis.__main__:main'

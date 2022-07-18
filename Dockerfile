@@ -22,7 +22,7 @@
 #
 
 #FROM python:3.9.1-slim-buster 
-FROM tensorflow/tensorflow
+FROM tensorflow/tensorflow:1.9.0-gpu-py3
 LABEL maintainer="Sandip Samal <dev@babyMRI.org>"
 
 WORKDIR /usr/local/src
@@ -31,6 +31,6 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 COPY . .
-RUN pip install .
-
+ARG extras_require=none
+RUN pip install ".[${extras_require}]"
 CMD ["unirep_analysis", "--help"]
