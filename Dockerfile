@@ -22,7 +22,7 @@
 #
 
 #FROM python:3.9.1-slim-buster 
-FROM continuumio/anaconda3:2020.11
+FROM tensorflow/tensorflow
 LABEL maintainer="Sandip Samal <dev@babyMRI.org>"
 
 WORKDIR /usr/local/src
