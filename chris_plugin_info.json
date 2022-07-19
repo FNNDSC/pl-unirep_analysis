@@ -1,0 +1,46 @@
+{
+  "type": "ds",
+  "parameters": [
+    {
+      "name": "dimension",
+      "type": "int",
+      "optional": true,
+      "flag": "--dimension",
+      "short_flag": "-d",
+      "action": "store",
+      "help": "Dimension of the model",
+      "default": 64,
+      "ui_exposed": true
+    },
+    {
+      "name": "batch_size",
+      "type": "int",
+      "optional": true,
+      "flag": "--batch_size",
+      "short_flag": "-b",
+      "action": "store",
+      "help": "Batch size of the model",
+      "default": 12,
+      "ui_exposed": true
+    }
+  ],
+  "icon": "",
+  "authors": "FNNDSC <dev@babyMRI.org>",
+  "title": "Unirep Analysis",
+  "category": "Utility",
+  "description": "A ChRIS plugin to run UniRep analysis",
+  "documentation": "https://github.com/FNNDSC/pl-unirep_analysis",
+  "license": "MIT",
+  "version": "0.1.1",
+  "selfpath": "/usr/local/bin",
+  "selfexec": "unirep_analysis",
+  "execshell": "/docker-entrypoint.sh",
+  "min_number_of_workers": 1,
+  "max_number_of_workers": 1,
+  "min_memory_limit": "",
+  "max_memory_limit": "",
+  "min_cpu_limit": "",
+  "max_cpu_limit": "",
+  "min_gpu_limit": 0,
+  "max_gpu_limit": 0
+}
