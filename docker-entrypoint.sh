@@ -1,4 +1,3 @@
-
 #!/bin/sh
 # CUBE **requires** all of selfpath, selfexec, and execshell to be defined,
 # which doesn't make sense for binary applications like this one.

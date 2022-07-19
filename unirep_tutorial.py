@@ -40,18 +40,6 @@ parser.add_argument('--batch_size','-b',
                     dest        = 'batch_size',
                     default     = 12,
                     help        = "Batch size of the model")
-
-parser.add_argument(
-                    type        = bool,
-                    dest        = 'saveinputmeta',
-                    default     = False,
-                    help        = "saveinputmeta")
-                    
-parser.add_argument(
-                    type        = bool,
-                    dest        = 'saveinputmeta',
-                    default     = False,
-                    help        = "saveinputmeta")
                                                             
 parser.add_argument(
                     type        = str,
