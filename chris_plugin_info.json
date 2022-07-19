@@ -31,7 +31,7 @@
   "description": "A ChRIS plugin to run UniRep analysis",
   "documentation": "https://github.com/FNNDSC/pl-unirep_analysis",
   "license": "MIT",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "selfpath": "/usr/local/src",
   "selfexec": "unirep_analysis",
   "execshell": "/docker-entrypoint.sh",

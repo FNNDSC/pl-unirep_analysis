@@ -40,6 +40,18 @@ parser.add_argument('--batch_size','-b',
                     dest        = 'batch_size',
                     default     = 12,
                     help        = "Batch size of the model")
+                    
+parser.add_argument('--saveinputmeta',
+                    type        = bool,
+                    dest        = 'saveinputmeta',
+                    default     = False,
+                    help        = "saveinputmeta")
+                    
+parser.add_argument('--saveoutputmeta',
+                    type        = bool,
+                    dest        = 'saveoutputmeta',
+                    default     = False,
+                    help        = "saveoutputmeta")
                                                             
 parser.add_argument(
                     type        = str,
@@ -59,6 +71,9 @@ def main():
   args = parser.parse_args()
   print(args)
   
+  if(args.json):
+    with open("chris_plugin_info.json", "r") as json:
+      return json
   print("Downloading data from aws")
   get_data(args)
   
