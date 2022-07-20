@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name             = 'unirep_analysis',
-    version          = '0.1.5',
+    version          = '0.1.6',
     description      = 'An app to run UniRep analysis',
     author           = 'Sandip Samal',
     author_email     = 'dev@babyMRI.org',

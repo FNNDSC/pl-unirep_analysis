@@ -31,8 +31,8 @@
   "description": "A ChRIS plugin to run UniRep analysis",
   "documentation": "https://github.com/FNNDSC/pl-unirep_analysis",
   "license": "MIT",
-  "version": "0.1.5",
-  "selfpath": "/usr/local/src",
+  "version": "0.1.6",
+  "selfpath": "/usr/local/bin",
   "selfexec": "unirep_analysis",
   "execshell": "/docker-entrypoint.sh",
   "min_number_of_workers": 1,
@@ -42,5 +42,5 @@
   "min_cpu_limit": "",
   "max_cpu_limit": "",
   "min_gpu_limit": 0,
-  "max_gpu_limit": 0
+  "max_gpu_limit": 1
 }

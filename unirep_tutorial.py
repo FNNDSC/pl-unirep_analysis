@@ -21,11 +21,33 @@ USE_FULL_1900_DIM_MODEL = True # if True use 1900 dimensional model, else use 64
 import tensorflow as tf
 import numpy as np
 import os
-from argparse import ArgumentParser
+from argparse import ArgumentParser,Action
+import json
+
+
 # Set seeds
 tf.set_random_seed(42)
 np.random.seed(42)
 
+class NoArgAction(Action):
+    """
+    Base class for action classes that do not have arguments.
+    """
+    def __init__(self, *args, **kwargs):
+        kwargs['nargs'] = 0
+        Action.__init__(self, *args, **kwargs)
+        
+class JsonAction(NoArgAction):
+    """
+    Custom action class to bypass required positional arguments when printing the app's
+    JSON representation.
+    """
+    def __call__(self, parser, namespace, values, option_string=None):
+        f=open('chris_plugin_info.json')
+        data = json.load(f)
+        print(json.dumps(data))
+        f.close()
+        parser.exit()
 
 parser = ArgumentParser(description='cli description')
 
@@ -41,17 +63,21 @@ parser.add_argument('--batch_size','-b',
                     default     = 12,
                     help        = "Batch size of the model")
                     
+parser.add_argument('--json', action=JsonAction, dest='json',
+                    default=False,
+                    help='show json representation of app and exit')
+                    
 parser.add_argument('--saveinputmeta',
-                    type        = bool,
+                    action      = 'store_true',
                     dest        = 'saveinputmeta',
                     default     = False,
-                    help        = "saveinputmeta")
+                    help        = "save arguments to a JSON file")
                     
 parser.add_argument('--saveoutputmeta',
-                    type        = bool,
+                    action      = 'store_true',
                     dest        = 'saveoutputmeta',
                     default     = False,
-                    help        = "saveoutputmeta")
+                    help        = "save output meta data to a JSON file")
                                                             
 parser.add_argument(
                     type        = str,
@@ -67,13 +93,9 @@ parser.add_argument(
 
 
 def main():
-  print("Start of app")
   args = parser.parse_args()
   print(args)
   
-  if(args.json):
-    with open("chris_plugin_info.json", "r") as json:
-      return json
   print("Downloading data from aws")
   get_data(args)
   
