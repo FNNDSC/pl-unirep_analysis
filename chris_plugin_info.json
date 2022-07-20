@@ -22,6 +22,50 @@
       "help": "Batch size of the model",
       "default": 12,
       "ui_exposed": true
+    },
+    {
+      "name": "inputFile",
+      "type": "str",
+      "optional": false,
+      "flag": "--inputFile",
+      "short_flag": "-i",
+      "action": "store",
+      "help": "Input file for the analysis",
+      "default": "sequence.txt",
+      "ui_exposed": true
+    },
+    {
+      "name": "outputFile",
+      "type": "str",
+      "optional": true,
+      "flag": "--outputFile",
+      "short_flag": "-o",
+      "action": "store",
+      "help": "Output file for the analysis",
+      "default": "format.txt",
+      "ui_exposed": true
+    },
+    {
+      "name": "train_top_model",
+      "type": "bool",
+      "optional": true,
+      "flag": "--train_top_model",
+      "short_flag": "-t",
+      "action": "store_true",
+      "help": "Train top model only",
+      "default": "False",
+      "ui_exposed": true
+    },
+    {
+      "name": "train_multiple",
+      "type": "bool",
+      "optional": true,
+      "flag": "--train_multiple",
+      "short_flag": "-m",
+      "action": "store_true",
+      "help": "Train top model & mLSTM",
+      "default": "False",
+      "ui_exposed": true
     }
   ],
   "icon": "",

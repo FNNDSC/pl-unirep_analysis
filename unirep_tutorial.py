@@ -10,8 +10,6 @@
 # In[1]:
 
 
-USE_FULL_1900_DIM_MODEL = True # if True use 1900 dimensional model, else use 64 dimensional one.
-
 
 # ## Setup
 
@@ -23,7 +21,7 @@ import numpy as np
 import os
 from argparse import ArgumentParser,Action
 import json
-
+import shutil
 
 # Set seeds
 tf.set_random_seed(42)
@@ -63,6 +61,30 @@ parser.add_argument('--batch_size','-b',
                     default     = 12,
                     help        = "Batch size of the model")
                     
+parser.add_argument('--inputFile','-i',
+                    type        = str,
+                    dest        = 'inputFile',
+                    default     = 'sequence.txt',
+                    help        = "Input file for the analysis")
+                    
+parser.add_argument('--outputFile','-o',
+                    type        = str,
+                    dest        = 'outputFile',
+                    default     = 'format.txt',
+                    help        = "Output file for the analysis")
+
+parser.add_argument('--train_top_model','-t',
+                    action      = 'store_true',
+                    dest        = 'train_top_model',
+                    default     =  False,
+                    help        = "Train top model only")
+                                        
+parser.add_argument('--train_multiple','-m',
+                    action      = 'store_true',
+                    dest        = 'train_multiple',
+                    default     =  False,
+                    help        = "Train top model & mLSTM")
+                                        
 parser.add_argument('--json', action=JsonAction, dest='json',
                     default=False,
                     help='show json representation of app and exit')
@@ -94,7 +116,8 @@ parser.add_argument(
 
 def main():
   args = parser.parse_args()
-  print(args)
+  for k,v in args.__dict__.items():
+            print("%20s:  -->%s<--" % (k, v))
   
   print("Downloading data from aws")
   get_data(args)
@@ -111,11 +134,14 @@ def main():
   print("Preparing model")
   prepare_model(args)
   
-  print("Training model")
-  train_model(args,batch)
-  
-  print("Jontly training multiple model")
-  joint_train_model(args,batch)
+  if(args.train_top_model):
+    print("Training model")
+    train_model(args,batch)
+    
+    
+  if(args.train_multiple):
+    print("Jointly training multiple models")
+    joint_train_model(args,batch)
   
   
 def get_data(args):
@@ -187,8 +213,15 @@ def format_data(args):
   # In[8]:
 
 
-  # Before you can train your model, 
-  with open("seqs.txt", "r") as source:
+  # Before you can train your model,
+  input_file_path = ""
+  for root,dirs,files in os.walk(args.inputdir):
+    for file in files:
+      if file == args.inputFile:
+        input_file_path = os.path.join(root,file)
+        
+  output_file_path = os.path.join(args.outputdir,args.outputFile) 
+  with open(input_file_path, "r") as source:
       with open("formatted.txt", "w") as destination:
           for i,seq in enumerate(source):
               seq = seq.strip()
@@ -196,6 +229,7 @@ def format_data(args):
                   formatted = ",".join(map(str,b.format_seq(seq)))
                   destination.write(formatted)
                   destination.write('\n')
+  shutil.copy('formatted.txt',output_file_path)
 
 
   # This is what the integer format looks like
