@@ -63,6 +63,12 @@ parser.add_argument('--batch_size','-b',
                     default     = 12,
                     help        = "Batch size of the model")
                     
+parser.add_argument('--learning_rate','-l',
+                    type        = float,
+                    dest        = 'learning_rate',
+                    default     = .001,
+                    help        = "Learning rate of the training model")
+                    
 parser.add_argument('--inputFile','-i',
                     type        = str,
                     dest        = 'inputFile',
@@ -120,11 +126,13 @@ def main():
   """
   Define the code to be run by this plugin app.
   """
-  print('Version: 0.1.7')
+
   
   args = parser.parse_args()
+  print('Version: 0.1.8')
   for k,v in args.__dict__.items():
             print("%20s:  -->%s<--" % (k, v))
+  
   
   
   # Set up the logger
@@ -164,33 +172,33 @@ def get_data(args):
   
   if args.dimension==1900:
     # Sync relevant weight files
-    os.system('aws s3 sync --no-sign-request --quiet s3://unirep-public/1900_weights/ 1900_weights/')
+    os.system('aws s3 sync --no-sign-request --quiet s3://unirep-public/1900_weights/ /tmp/1900_weights/')
     
     # Import the mLSTM babbler model
     from src.unirep import babbler1900 as babbler
     data_babbler=babbler
     # Where model weights are stored.
-    MODEL_WEIGHT_PATH = "./1900_weights"
+    MODEL_WEIGHT_PATH = "/tmp/1900_weights"
     
   elif args.dimension==256:  
     # Sync relevant weight files
-    os.system('aws s3 sync --no-sign-request --quiet s3://unirep-public/256_weights/ 256_weights/')
+    os.system('aws s3 sync --no-sign-request --quiet s3://unirep-public/256_weights/ /tmp/256_weights/')
     
     # Import the mLSTM babbler model
     from src.unirep import babbler256 as babbler
     data_babbler=babbler
     # Where model weights are stored.
-    MODEL_WEIGHT_PATH = "./256_weights"
+    MODEL_WEIGHT_PATH = "/tmp/256_weights"
     
   else:
     # Sync relevant weight files
-    os.system('aws s3 sync --no-sign-request --quiet s3://unirep-public/64_weights/ 64_weights/')
+    os.system('aws s3 sync --no-sign-request --quiet s3://unirep-public/64_weights/ /tmp/64_weights/')
     
     # Import the mLSTM babbler model
     from src.unirep import babbler64 as babbler
     data_babbler=babbler
     # Where model weights are stored.
-    MODEL_WEIGHT_PATH = "./64_weights"
+    MODEL_WEIGHT_PATH = "/tmp/64_weights"
     
       
 def prepare_data(args):
@@ -227,6 +235,7 @@ def prepare_data(args):
   b.is_valid_seq(seq)
 
 def format_data(args):
+  global interim_format_path
   # You could use your own data flow as long as you ensure that the data format is obeyed. Alternatively, you can use the data flow we've implemented for UniRep training, which happens in the tensorflow graph. It reads from a file of integer sequences, shuffles them around, collects them into groups of similar length (to minimize padding waste) and pads them to the max_length. Here's how to do that:
 
   # First, sequences need to be saved in the correct format. Suppose we have a new-line seperated file of amino acid sequences, `seqs.txt`, and we want to format them. Note that training is currently only publicly supported for amino acid sequences less than 275 amino acids as gradient updates for sequences longer than that start to get unwieldy. If you want to train on sequences longer than this, please reach out to us. 
@@ -237,6 +246,7 @@ def format_data(args):
 
 
   # Before you can train your model,
+  interim_format_path = "/tmp/formatted.txt"
   input_file_path = ""
   for root,dirs,files in os.walk(args.inputdir):
     for file in files:
@@ -245,14 +255,14 @@ def format_data(args):
         
   output_file_path = os.path.join(args.outputdir,args.outputFile) 
   with open(input_file_path, "r") as source:
-      with open("formatted.txt", "w") as destination:
+      with open(interim_format_path, "w") as destination:
           for i,seq in enumerate(source):
               seq = seq.strip()
               if b.is_valid_seq(seq) and len(seq) < 275: 
                   formatted = ",".join(map(str,b.format_seq(seq)))
                   destination.write(formatted)
                   destination.write('\n')
-  shutil.copy('formatted.txt',output_file_path)
+  shutil.copy(interim_format_path,output_file_path)
 
 
   # This is what the integer format looks like
@@ -260,7 +270,7 @@ def format_data(args):
   # In[9]:
 
 
-  os.system('head -n1 formatted.txt')
+  os.system('head -n1 {}'.format(interim_format_path))
 
 def bucket_data(args):
   global batch
@@ -280,7 +290,7 @@ def bucket_data(args):
   # In[10]:
 
 
-  bucket_op = b.bucket_batch_pad("formatted.txt", interval=1000) # Large interval
+  bucket_op = b.bucket_batch_pad(interim_format_path, interval=1000) # Large interval
 
 
   # Inconveniently, this does not make it easy for a value to be associated with each sequence and not lost during shuffling. You can get around this by just prepending every integer sequence with the sequence label (eg, every sequence would be saved to the file as "{brightness value}, 24, 1, 5,..." and then you could just index out the first column after calling the `bucket_op`. Please reach out if you have questions on how to do this.
@@ -343,7 +353,7 @@ def prepare_model(args):
   # In[14]:
 
 
-  learning_rate=.001
+  learning_rate=args.learning_rate
   top_variables = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope="top")
   optimizer = tf.train.AdamOptimizer(learning_rate)
   top_only_step_op = optimizer.minimize(loss, var_list=top_variables)

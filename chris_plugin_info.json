@@ -24,6 +24,17 @@
       "ui_exposed": true
     },
     {
+      "name": "learning_rate",
+      "type": "float",
+      "optional": true,
+      "flag": "--learning_rate",
+      "short_flag": "-l",
+      "action": "store",
+      "help": "Learning rate of the training model",
+      "default": 0.001,
+      "ui_exposed": true
+    },
+    {
       "name": "inputFile",
       "type": "str",
       "optional": false,
@@ -75,7 +86,7 @@
   "description": "A ChRIS plugin to run UniRep analysis",
   "documentation": "https://github.com/FNNDSC/pl-unirep_analysis",
   "license": "MIT",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "selfpath": "/usr/local/bin",
   "selfexec": "unirep_analysis",
   "execshell": "/docker-entrypoint.sh",
