@@ -21,7 +21,7 @@
 #
 #   docker run -ti -e HOST_IP=$(ip route | grep -v docker | awk '{if(NF==11) print $9}') --entrypoint /bin/bash local/pl-unirep_analysis
 #
-FROM tensorflow/tensorflow:1.3.0-gpu-py3 as unirep
+FROM tensorflow/tensorflow:1.3.0-py3 as unirep
 LABEL maintainer="FNNDSC <dev@babyMRI.org>"
 
 WORKDIR /usr/local/src

@@ -22,11 +22,13 @@ import os
 from argparse import ArgumentParser,Action
 import json
 import shutil
+import logging
+import sys
 
 # Set seeds
 tf.set_random_seed(42)
 np.random.seed(42)
-
+      
 class NoArgAction(Action):
     """
     Base class for action classes that do not have arguments.
@@ -115,61 +117,82 @@ parser.add_argument(
 
 
 def main():
+  """
+  Define the code to be run by this plugin app.
+  """
+  print('Version: 0.1.7')
+  
   args = parser.parse_args()
   for k,v in args.__dict__.items():
             print("%20s:  -->%s<--" % (k, v))
   
-  print("Downloading data from aws")
+  
+  # Set up the logger
+  logger = logging.getLogger("eval")
+  logger.setLevel(logging.DEBUG)
+  logger.addHandler(logging.StreamHandler(stream=sys.stdout))
+
+  logger.info("Getting {}_weights from AWS".format(args.dimension))
   get_data(args)
   
-  print("Preparing data")
+  logger.info("Preparing data")
   prepare_data(args)
   
-  print("Formatting data")
+  logger.info("Formatting data")
   format_data(args)
   
-  print("Bucketting data")
+  logger.info("Bucketting data")
   bucket_data(args)
   
-  print("Preparing model")
+  logger.info("Preparing model")
   prepare_model(args)
   
   if(args.train_top_model):
-    print("Training model")
+    logger.info("Training model")
     train_model(args,batch)
     
     
   if(args.train_multiple):
-    print("Jointly training multiple models")
+    logger.info("Jointly training multiple models")
     joint_train_model(args,batch)
   
   
 def get_data(args):
+
   global data_babbler
   global MODEL_WEIGHT_PATH
- 
+  
   if args.dimension==1900:
-      # Sync relevant weight files
-      os.system('aws s3 sync --no-sign-request --quiet s3://unirep-public/1900_weights/ 1900_weights/')
+    # Sync relevant weight files
+    os.system('aws s3 sync --no-sign-request --quiet s3://unirep-public/1900_weights/ 1900_weights/')
     
-      # Import the mLSTM babbler model
-      from src.unirep import babbler1900 as babbler
-      data_babbler=babbler
-      # Where model weights are stored.
-      MODEL_WEIGHT_PATH = "./1900_weights"
+    # Import the mLSTM babbler model
+    from src.unirep import babbler1900 as babbler
+    data_babbler=babbler
+    # Where model weights are stored.
+    MODEL_WEIGHT_PATH = "./1900_weights"
+    
+  elif args.dimension==256:  
+    # Sync relevant weight files
+    os.system('aws s3 sync --no-sign-request --quiet s3://unirep-public/256_weights/ 256_weights/')
+    
+    # Import the mLSTM babbler model
+    from src.unirep import babbler256 as babbler
+    data_babbler=babbler
+    # Where model weights are stored.
+    MODEL_WEIGHT_PATH = "./256_weights"
     
   else:
-      # Sync relevant weight files
-      os.system('aws s3 sync --no-sign-request --quiet s3://unirep-public/64_weights/ 64_weights/')
+    # Sync relevant weight files
+    os.system('aws s3 sync --no-sign-request --quiet s3://unirep-public/64_weights/ 64_weights/')
     
-      # Import the mLSTM babbler model
-      from src.unirep import babbler64 as babbler
-      data_babbler=babbler
-      # Where model weights are stored.
-      MODEL_WEIGHT_PATH = "./64_weights"
+    # Import the mLSTM babbler model
+    from src.unirep import babbler64 as babbler
+    data_babbler=babbler
+    # Where model weights are stored.
+    MODEL_WEIGHT_PATH = "./64_weights"
+    
       
-
-
 def prepare_data(args):
   # ## Data formatting and management
 
