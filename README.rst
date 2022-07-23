@@ -111,7 +111,7 @@ Arguments
 Run
 ----
 
-The execute vector of this pluing is via ``docker``.
+The execute vector of this plugin is via ``docker``.
 
 Using ``docker run``
 ~~~~~~~~~~~~~~~~~~~~
