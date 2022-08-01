@@ -40,6 +40,7 @@ Synopsis
         python unirep_analysis.py                                           \
                                     [--dimension <modelDimension>]          \
                                     [--batch_size <batchSize>]              \
+                                    [--learning_rate <learningRate>]        \
                                     [--inputFile <inputFileToProcess>]      \
                                     [--outputFile <resultOutputFile>]       \
                                     [--train_top_model]                     \
@@ -71,11 +72,14 @@ Arguments
 
         [--dimension <modelDimension>]
         By default, the <modelDimension> is 64. However, the value can be changed
-        to 1900 (full) or 256 and the corresponding weights files will be downloaded 
-        AWS for you.
+        to 1900 (full) or 256 and the corresponding weights files (present inside 
+        the container) will be used.
         
         [--batch_size <batchSize>]
         This represents the batch size of the babbler. Default value is 12.
+        
+        [--learning_rate <learningRate>]
+        This represents the learning rate of the trainig model. Default value is 0.001 
 
         [--inputFile <inputFileToProcess>]
         The name of the ``.txt`` file that contains your amino acid sequences.
