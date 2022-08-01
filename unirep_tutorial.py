@@ -129,7 +129,7 @@ def main():
 
   
   args = parser.parse_args()
-  print('Version: 0.1.8')
+  print('Version: 0.1.9')
   for k,v in args.__dict__.items():
             print("%20s:  -->%s<--" % (k, v))
   
@@ -140,7 +140,7 @@ def main():
   logger.setLevel(logging.DEBUG)
   logger.addHandler(logging.StreamHandler(stream=sys.stdout))
 
-  logger.info("Getting {}_weights from AWS".format(args.dimension))
+  logger.info("Using {}_weights from AWS".format(args.dimension))
   get_data(args)
   
   logger.info("Preparing data")
@@ -172,33 +172,33 @@ def get_data(args):
   
   if args.dimension==1900:
     # Sync relevant weight files
-    os.system('aws s3 sync --no-sign-request --quiet s3://unirep-public/1900_weights/ /tmp/1900_weights/')
+    #os.system('aws s3 sync --no-sign-request --quiet s3://unirep-public/1900_weights/ /tmp/1900_weights/')
     
     # Import the mLSTM babbler model
     from src.unirep import babbler1900 as babbler
     data_babbler=babbler
     # Where model weights are stored.
-    MODEL_WEIGHT_PATH = "/tmp/1900_weights"
+    MODEL_WEIGHT_PATH = "./data/1900_weights"
     
   elif args.dimension==256:  
     # Sync relevant weight files
-    os.system('aws s3 sync --no-sign-request --quiet s3://unirep-public/256_weights/ /tmp/256_weights/')
+    #os.system('aws s3 sync --no-sign-request --quiet s3://unirep-public/256_weights/ /tmp/256_weights/')
     
     # Import the mLSTM babbler model
     from src.unirep import babbler256 as babbler
     data_babbler=babbler
     # Where model weights are stored.
-    MODEL_WEIGHT_PATH = "/tmp/256_weights"
+    MODEL_WEIGHT_PATH = "./data/256_weights"
     
   else:
     # Sync relevant weight files
-    os.system('aws s3 sync --no-sign-request --quiet s3://unirep-public/64_weights/ /tmp/64_weights/')
+    #os.system('aws s3 sync --no-sign-request --quiet s3://unirep-public/64_weights/ /tmp/64_weights/')
     
     # Import the mLSTM babbler model
     from src.unirep import babbler64 as babbler
     data_babbler=babbler
     # Where model weights are stored.
-    MODEL_WEIGHT_PATH = "/tmp/64_weights"
+    MODEL_WEIGHT_PATH = "./data/64_weights"
     
       
 def prepare_data(args):
