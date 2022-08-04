@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name             = 'unirep_analysis',
-    version          = '0.1.9',
+    version          = '0.2.0',
     description      = 'An app to run UniRep analysis',
     author           = 'Sandip Samal',
     author_email     = 'dev@babyMRI.org',
@@ -12,7 +12,7 @@ setup(
     py_modules       = ['unirep_tutorial'],
     test_suite       = 'nose.collector',
     tests_require    = ['nose'],
-    packages         = ['src','data'],
+    packages         = ['src'],
     license          = 'MIT',
     zip_safe         = False,
     python_requires  = '>=3.5',

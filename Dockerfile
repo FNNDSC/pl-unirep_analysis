@@ -21,9 +21,22 @@
 #
 #   docker run -ti -e HOST_IP=$(ip route | grep -v docker | awk '{if(NF==11) print $9}') --entrypoint /bin/bash local/pl-unirep_analysis
 #
+FROM alpine:latest as download
+
+WORKDIR /tmp
+RUN apk add --no-cache aws-cli \
+    && rm -rf /var/cache/apk/*
+    
+RUN aws s3 sync --no-sign-request --quiet s3://unirep-public/1900_weights/ /tmp/data/1900_weights/
+RUN aws s3 sync --no-sign-request --quiet s3://unirep-public/256_weights/ /tmp/data/256_weights/
+RUN aws s3 sync --no-sign-request --quiet s3://unirep-public/64_weights/ /tmp/data/64_weights/
+
+
+
 FROM tensorflow/tensorflow:1.3.0-py3 as unirep
 LABEL maintainer="FNNDSC <dev@babyMRI.org>"
 
+COPY --from=download /tmp/data/ /usr/local/lib/unirep_analysis
 WORKDIR /usr/local/src
 
 

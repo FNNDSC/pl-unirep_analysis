@@ -129,7 +129,7 @@ def main():
 
   
   args = parser.parse_args()
-  print('Version: 0.1.9')
+  print('Version: 0.2.0')
   for k,v in args.__dict__.items():
             print("%20s:  -->%s<--" % (k, v))
   
@@ -171,34 +171,28 @@ def get_data(args):
   global MODEL_WEIGHT_PATH
   
   if args.dimension==1900:
-    # Sync relevant weight files
-    #os.system('aws s3 sync --no-sign-request --quiet s3://unirep-public/1900_weights/ /tmp/1900_weights/')
     
     # Import the mLSTM babbler model
     from src.unirep import babbler1900 as babbler
     data_babbler=babbler
     # Where model weights are stored.
-    MODEL_WEIGHT_PATH = "./data/1900_weights"
+    MODEL_WEIGHT_PATH = "/usr/local/lib/unirep_analysis/1900_weights"
     
   elif args.dimension==256:  
-    # Sync relevant weight files
-    #os.system('aws s3 sync --no-sign-request --quiet s3://unirep-public/256_weights/ /tmp/256_weights/')
     
     # Import the mLSTM babbler model
     from src.unirep import babbler256 as babbler
     data_babbler=babbler
     # Where model weights are stored.
-    MODEL_WEIGHT_PATH = "./data/256_weights"
+    MODEL_WEIGHT_PATH = "/usr/local/lib/unirep_analysis/256_weights"
     
   else:
-    # Sync relevant weight files
-    #os.system('aws s3 sync --no-sign-request --quiet s3://unirep-public/64_weights/ /tmp/64_weights/')
     
     # Import the mLSTM babbler model
     from src.unirep import babbler64 as babbler
     data_babbler=babbler
     # Where model weights are stored.
-    MODEL_WEIGHT_PATH = "./data/64_weights"
+    MODEL_WEIGHT_PATH = "/usr/local/lib/unirep_analysis/64_weights"
     
       
 def prepare_data(args):
