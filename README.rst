@@ -37,14 +37,14 @@ Synopsis
 
 .. code::
 
-        python unirep_analysis.py                                           \
+        python unirep_analysis                                              \
                                     [--dimension <modelDimension>]          \
                                     [--batch_size <batchSize>]              \
-                                    [--learning_rate <learningRate>]        \
+                                    [--leaning_rate <learningRate>]         \
                                     [--inputFile <inputFileToProcess>]      \
+                                    [--inputGlob <inputGlobPattern>]        \
+                                    [--modelWeightPath <pathToWeights>]     \
                                     [--outputFile <resultOutputFile>]       \
-                                    [--train_top_model]                     \
-                                    [--train_multiple]                      \
                                     [--json]                                \
                                     <inputDir>
                                     <outputDir>
@@ -72,39 +72,34 @@ Arguments
 
         [--dimension <modelDimension>]
         By default, the <modelDimension> is 64. However, the value can be changed
-        to 1900 (full) or 256 and the corresponding weights files (present inside 
+        to 1900 (full) or 256 and the corresponding weights files (present inside
         the container) will be used.
-        
+
         [--batch_size <batchSize>]
         This represents the batch size of the babbler. Default value is 12.
-        
-        [--learning_rate <learningRate>]
-        This represents the learning rate of the trainig model. Default value is 0.001 
+
+        [--learning_date <learningRate>]
+        Needed to build the model. Default is 0.001.
 
         [--inputFile <inputFileToProcess>]
-        The name of the ``.txt`` file that contains your amino acid sequences.
-        The default file name is ``sequence.txt``. The full path to the 
+        The name of the input text file that contains your amino acid sequences.
+        The default file name is an empty string. The full path to the
         <inputFileToProcess> is constructed by concatenating <inputDir>
 
                 ``<inputDir>/<inputFileToProcess>``
+
+        [--inputGlob <inputGlob>]
+        A glob pattern string, default ``**/*txt``, that specifies the file containing
+        an amino acid sequence. This parameter allows for dynamic searching in the
+        input space a sequence file, and the first "hit" is grabbed.
+
+        [--modelWeightPath <path>]
+        A path to a directory containing model weight files to use for inference.
 
         [--outputFile <resultOutputFile>]
         The name of the output or formatted ``txt`` file. Default name is
 
                             ``format.txt``
-
-        [--train_top_model]
-        If specified, train top model only.
-
-
-
-        [--train_multiple]
-        If specified, jointly train top model & mLSTM
-        
-        (Note that if using the 1900-unit (full) model, 
-        you will need a GPU with at least 16GB RAM. 
-        To see a demonstration of joint training with fewer
-        computational resources, please run this plugin using the 64-unit model.
 
         [-h]
         Display inline help
@@ -151,7 +146,7 @@ Assuming that the ``<inputDir>`` layout conforms to
     <inputDir>
         │
         └──█ sequence.txt
-  
+
 
 to process this (by default on a GPU) do
 
@@ -160,7 +155,7 @@ to process this (by default on a GPU) do
    docker run   --rm --gpus all                                             \
                 -v $(pwd)/in:/incoming -v $(pwd)/out:/outgoing              \
                 fnndsc/pl-unirep_analysis unirep_analysis                   \
-                --inputFile sequence.txt --outputFile formatted.txt         \                              
+                --inputFile sequence.txt --outputFile formatted.txt         \
                 /incoming /outgoing
 
 (note the ``--gpus all`` is not necessarily required) which will create in the ``<outputDir>``:
@@ -170,11 +165,34 @@ to process this (by default on a GPU) do
     <outputDir>
         │
         └──█ formatted.txt
-                
 
 
+Development
+-----------
 
+To perform in-line debugging of the container, do
+
+.. code:: bash
+
+    docker run --rm -it --userns=host  -u $(id -u):$(id -g)                                     \
+        -v $PWD/unirep_analysis.py:/usr/local/lib/python3.5/dist-packages/unirep_analysis.py:ro \
+        -v $PWD/src:/usr/local/lib/python3.5/dist-packages/src                                  \
+           -v $PWD/in:/incoming:ro -v $PWD/out:/outgoing:rw -w /outgoing                        \
+           local/pl-unirep_analysis2 unirep_analysis /incoming /outgoing
+
+Note, if you want to use `pudb` for debugging, then omit the ``-u $(id -u):$(id -g)``:
+
+.. code:: bash
+
+    docker run --rm -it --userns=host                                                           \
+        -v $PWD/unirep_analysis.py:/usr/local/lib/python3.5/dist-packages/unirep_analysis.py:ro \
+        -v $PWD/src:/usr/local/lib/python3.5/dist-packages/src                                  \
+           -v $PWD/in:/incoming:ro -v $PWD/out:/outgoing:rw -w /outgoing                        \
+           local/pl-unirep_analysis2 unirep_analysis /incoming /outgoing
+
+Of course, in both cases above, use approrpiate CLI args if required.
 
 .. image:: https://raw.githubusercontent.com/FNNDSC/cookiecutter-chrisapp/master/doc/assets/badge/light.png
     :target: https://chrisstore.co
 
+_-30-_
