@@ -1,20 +1,4 @@
 
-# coding: utf-8
-
-# ## How to use the UniRep mLSTM "babbler". This version demonstrates the 64-unit and the 1900-unit architecture. 
-# 
-# We recommend getting started with the 64-unit architecture as it is easier and faster to run, but has the same interface as the 1900-unit one.
-
-# Use the 64-unit or the 1900-unit model?
-
-# In[1]:
-
-
-
-# ## Setup
-
-# In[2]:
-
 
 import tensorflow as tf
 import numpy as np
@@ -25,10 +9,14 @@ import shutil
 import logging
 import sys
 
+import glob
+
+import pudb
+
 # Set seeds
 tf.set_random_seed(42)
 np.random.seed(42)
-      
+
 class NoArgAction(Action):
     """
     Base class for action classes that do not have arguments.
@@ -36,7 +24,7 @@ class NoArgAction(Action):
     def __init__(self, *args, **kwargs):
         kwargs['nargs'] = 0
         Action.__init__(self, *args, **kwargs)
-        
+
 class JsonAction(NoArgAction):
     """
     Custom action class to bypass required positional arguments when printing the app's
@@ -51,70 +39,71 @@ class JsonAction(NoArgAction):
 
 parser = ArgumentParser(description='cli description')
 
-parser.add_argument('--dimesion','-d',
+parser.add_argument('--dimension','-d',
                     type        = int,
                     dest        = 'dimension',
                     default     = 64,
                     help        = "Dimension of the model")
-              
+
 parser.add_argument('--batch_size','-b',
                     type        = int,
                     dest        = 'batch_size',
                     default     = 12,
                     help        = "Batch size of the model")
-                    
+
 parser.add_argument('--learning_rate','-l',
                     type        = float,
                     dest        = 'learning_rate',
                     default     = .001,
                     help        = "Learning rate of the training model")
-                    
+
 parser.add_argument('--inputFile','-i',
                     type        = str,
                     dest        = 'inputFile',
-                    default     = 'sequence.txt',
+                    default     = '',
                     help        = "Input file for the analysis")
-                    
+
+parser.add_argument('--inputGlob','-g',
+                    type        = str,
+                    dest        = 'inputGlob',
+                    default     = '**/*.txt',
+                    help        = "Input glob to find sequence text file")
+
+parser.add_argument('--modelWeightPath','-m',
+                    type        = str,
+                    dest        = 'modelWeightPath',
+                    default     = '/usr/local/lib/unirep_analysis/',
+                    help        = "Directory containing weight files")
+
 parser.add_argument('--outputFile','-o',
                     type        = str,
                     dest        = 'outputFile',
                     default     = 'format.txt',
                     help        = "Output file for the analysis")
 
-parser.add_argument('--train_top_model','-t',
-                    action      = 'store_true',
-                    dest        = 'train_top_model',
-                    default     =  False,
-                    help        = "Train top model only")
-                                        
-parser.add_argument('--train_multiple','-m',
-                    action      = 'store_true',
-                    dest        = 'train_multiple',
-                    default     =  False,
-                    help        = "Train top model & mLSTM")
-                                        
+
 parser.add_argument('--json', action=JsonAction, dest='json',
                     default=False,
                     help='show json representation of app and exit')
-                    
+
 parser.add_argument('--saveinputmeta',
                     action      = 'store_true',
                     dest        = 'saveinputmeta',
                     default     = False,
                     help        = "save arguments to a JSON file")
-                    
+
 parser.add_argument('--saveoutputmeta',
                     action      = 'store_true',
                     dest        = 'saveoutputmeta',
                     default     = False,
                     help        = "save output meta data to a JSON file")
-                                                            
+
 parser.add_argument(
                     type        = str,
                     dest        = 'inputdir',
                     default     = "",
                     help        = "Input path to the app")
-                    
+
 parser.add_argument(
                     type        = str,
                     dest        = 'outputdir',
@@ -127,74 +116,67 @@ def main():
   Define the code to be run by this plugin app.
   """
 
-  
+
   args = parser.parse_args()
-  print('Version: 0.2.0')
+
+  print('Version: 0.2.2')
   for k,v in args.__dict__.items():
             print("%20s:  -->%s<--" % (k, v))
-  
-  
-  
+
+
+
   # Set up the logger
   logger = logging.getLogger("eval")
   logger.setLevel(logging.DEBUG)
   logger.addHandler(logging.StreamHandler(stream=sys.stdout))
 
-  logger.info("Using {}_weights from AWS".format(args.dimension))
+  logger.info("Using {}_weights".format(args.dimension))
   get_data(args)
-  
+
   logger.info("Preparing data")
   prepare_data(args)
-  
+
   logger.info("Formatting data")
   format_data(args)
-  
+
   logger.info("Bucketting data")
   bucket_data(args)
-  
+
   logger.info("Preparing model")
   prepare_model(args)
-  
-  if(args.train_top_model):
-    logger.info("Training model")
-    train_model(args,batch)
-    
-    
-  if(args.train_multiple):
-    logger.info("Jointly training multiple models")
-    joint_train_model(args,batch)
-  
-  
+
 def get_data(args):
 
   global data_babbler
   global MODEL_WEIGHT_PATH
-  
+
+  # pudb.set_trace()
+
   if args.dimension==1900:
-    
+
     # Import the mLSTM babbler model
     from src.unirep import babbler1900 as babbler
     data_babbler=babbler
     # Where model weights are stored.
-    MODEL_WEIGHT_PATH = "/usr/local/lib/unirep_analysis/1900_weights"
-    
-  elif args.dimension==256:  
-    
+    MODEL_WEIGHT_PATH = '%s/%s' % (args.modelWeightPath, "1900_weights")
+
+  elif args.dimension==256:
+
     # Import the mLSTM babbler model
     from src.unirep import babbler256 as babbler
     data_babbler=babbler
     # Where model weights are stored.
-    MODEL_WEIGHT_PATH = "/usr/local/lib/unirep_analysis/256_weights"
-    
+    MODEL_WEIGHT_PATH = '%s/%s' % (args.modelWeightPath, "256_weights")
+
   else:
-    
+
     # Import the mLSTM babbler model
     from src.unirep import babbler64 as babbler
     data_babbler=babbler
     # Where model weights are stored.
-    MODEL_WEIGHT_PATH = "/usr/local/lib/unirep_analysis/64_weights"
-    
-      
+    MODEL_WEIGHT_PATH = '%s/%s' % (args.modelWeightPath, "64_weights")
+
+
 def prepare_data(args):
   # ## Data formatting and management
 
@@ -232,8 +214,8 @@ def format_data(args):
   global interim_format_path
   # You could use your own data flow as long as you ensure that the data format is obeyed. Alternatively, you can use the data flow we've implemented for UniRep training, which happens in the tensorflow graph. It reads from a file of integer sequences, shuffles them around, collects them into groups of similar length (to minimize padding waste) and pads them to the max_length. Here's how to do that:
 
-  # First, sequences need to be saved in the correct format. Suppose we have a new-line seperated file of amino acid sequences, `seqs.txt`, and we want to format them. Note that training is currently only publicly supported for amino acid sequences less than 275 amino acids as gradient updates for sequences longer than that start to get unwieldy. If you want to train on sequences longer than this, please reach out to us. 
-  # 
+  # First, sequences need to be saved in the correct format. Suppose we have a new-line seperated file of amino acid sequences, `seqs.txt`, and we want to format them. Note that training is currently only publicly supported for amino acid sequences less than 275 amino acids as gradient updates for sequences longer than that start to get unwieldy. If you want to train on sequences longer than this, please reach out to us.
+  #
   # Sequence formatting can be done as follows:
 
   # In[8]:
@@ -242,17 +224,27 @@ def format_data(args):
   # Before you can train your model,
   interim_format_path = "/tmp/formatted.txt"
   input_file_path = ""
-  for root,dirs,files in os.walk(args.inputdir):
-    for file in files:
-      if file == args.inputFile:
-        input_file_path = os.path.join(root,file)
-        
-  output_file_path = os.path.join(args.outputdir,args.outputFile) 
+  # Determine the input sequence file either from the inputfile spec or glob pattern.
+  # If multiple files found, only process the first file.
+  str_glob = ""
+  if len(args.inputFile):
+    str_glob = '%s/**/%s' % (args.inputdir, args.inputFile)
+  else:
+    if len(args.inputGlob):
+      str_glob = '%s/%s' % (args.inputdir, args.inputGlob)
+  if len(str_glob):
+    l_allHits = glob.glob(str_glob, recursive = True)
+    if len(l_allHits): input_file_path = l_allHits[0]
+    else:
+      print("No valid input sequence text file was found!")
+      sys.exit(1)
+
+  output_file_path = os.path.join(args.outputdir,args.outputFile)
   with open(input_file_path, "r") as source:
       with open(interim_format_path, "w") as destination:
           for i,seq in enumerate(source):
               seq = seq.strip()
-              if b.is_valid_seq(seq) and len(seq) < 275: 
+              if b.is_valid_seq(seq) and len(seq) < 275:
                   formatted = ",".join(map(str,b.format_seq(seq)))
                   destination.write(formatted)
                   destination.write('\n')
@@ -271,11 +263,11 @@ def bucket_data(args):
   global bucket_op
   # Notice that by default format_seq does not include the stop symbol (25) at the end of the sequence. This is the correct behavior if you are trying to train a top model, but not if you are training UniRep representations.
 
-  # Now we can use a custom function to bucket, batch and pad sequences from `formatted.txt` (which has the correct integer codex after calling `babbler.format_seq()`). The bucketing occurs in the graph. 
-  # 
+  # Now we can use a custom function to bucket, batch and pad sequences from `formatted.txt` (which has the correct integer codex after calling `babbler.format_seq()`). The bucketing occurs in the graph.
+  #
   # What is bucketing? Specify a lower and upper bound, and interval. All sequences less than lower or greater than upper will be batched together. The interval defines the "sides" of buckets between these bounds. Don't pick a small interval for a small dataset because the function will just repeat a sequence if there are not enough to
   # fill a batch. All batches are the size you passed when initializing the babbler.
-  # 
+  #
   # This is also doing a few other things:
   # - Shuffling the sequences by randomly sampling from a 10000 sequence buffer
   # - Automatically padding the sequences with zeros so the returned batch is a perfect rectangle
@@ -297,7 +289,7 @@ def bucket_data(args):
   with tf.Session() as sess:
       sess.run(tf.global_variables_initializer())
       batch = sess.run(bucket_op)
-    
+
   print(batch)
   print(batch.shape)
 
@@ -317,13 +309,13 @@ def prepare_model(args):
 
 
   # `final_hidden` should be a batch_size x rep_dim matrix.
-  # 
+  #
   # Lets say we want to train a basic feed-forward network as the top model, doing regression with MSE loss, and the Adam optimizer. We   can do that by:
-  # 
+  #
   # 1.  Defining a loss function.
-  # 
+  #
   # 2.  Defining an optimizer that's only optimizing variables in the top model.
-  # 
+  #
   # 3.  Minimizing the loss inside of a TensorFlow session
 
   # In[13]:
@@ -334,7 +326,7 @@ def prepare_model(args):
 
   with tf.variable_scope("top"):
       prediction = tf.contrib.layers.fully_connected(
-          final_hidden, 1, activation_fn=None, 
+          final_hidden, 1, activation_fn=None,
           weights_initializer=initializer,
           biases_initializer=tf.zeros_initializer()
       )
@@ -389,7 +381,7 @@ def train_model(args,batch):
                        initial_state_placeholder:b._zero_state
                   }
           )
-                  
+
           print("Iteration {0}: {1}".format(i, loss_))
 
 def joint_train_model(args,batch):
@@ -414,6 +406,6 @@ def joint_train_model(args,batch):
                        initial_state_placeholder:b._zero_state
                   }
           )
-        
+
           print("Iteration {0}: {1}".format(i,loss_))
 
