@@ -37,7 +37,7 @@ Synopsis
 
 .. code::
 
-        python unirep_analysis                                              \
+        unirep_analysis                                                     \
                                     [--dimension <modelDimension>]          \
                                     [--batch_size <batchSize>]              \
                                     [--learning_rate <learningRate>]        \
