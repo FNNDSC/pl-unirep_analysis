@@ -86,10 +86,10 @@ Arguments
         The default file name is an empty string. The full path to the
         <inputFileToProcess> is constructed by concatenating <inputDir>
 
-                ``<inputDir>/<inputFileToProcess>``
+                <inputDir>/<inputFileToProcess>
 
         [--inputGlob <inputGlob>]
-        A glob pattern string, default ``**/*txt``, that specifies the file containing
+        A glob pattern string, default '**/*txt', that specifies the file containing
         an amino acid sequence. This parameter allows for dynamic searching in the
         input space a sequence file, and the first "hit" is grabbed.
 
@@ -97,9 +97,7 @@ Arguments
         A path to a directory containing model weight files to use for inference.
 
         [--outputFile <resultOutputFile>]
-        The name of the output or formatted ``txt`` file. Default name is
-
-                            ``format.txt``
+        The name of the output or formatted 'txt' file. Default name is 'format.txt'
 
         [-h]
         Display inline help
