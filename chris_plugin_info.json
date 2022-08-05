@@ -37,12 +37,34 @@
     {
       "name": "inputFile",
       "type": "str",
-      "optional": false,
+      "optional": true,
       "flag": "--inputFile",
       "short_flag": "-i",
       "action": "store",
       "help": "Input file for the analysis",
       "default": "sequence.txt",
+      "ui_exposed": true
+    },
+    {
+      "name": "inputGlob",
+      "type": "str",
+      "optional": true,
+      "flag": "--inputGlob",
+      "short_flag": "-g",
+      "action": "store",
+      "help": "Input glob to find sequence text file",
+      "default": "**/*.txt",
+      "ui_exposed": true
+    },
+    {
+      "name": "modelWeightPath",
+      "type": "str",
+      "optional": true,
+      "flag": "--modelWeightPath",
+      "short_flag": "-m",
+      "action": "store",
+      "help": "Directory containing weight files",
+      "default": "/usr/local/lib/unirep_analysis/",
       "ui_exposed": true
     },
     {
@@ -55,28 +77,6 @@
       "help": "Output file for the analysis",
       "default": "format.txt",
       "ui_exposed": true
-    },
-    {
-      "name": "train_top_model",
-      "type": "bool",
-      "optional": true,
-      "flag": "--train_top_model",
-      "short_flag": "-t",
-      "action": "store_true",
-      "help": "Train top model only",
-      "default": "False",
-      "ui_exposed": true
-    },
-    {
-      "name": "train_multiple",
-      "type": "bool",
-      "optional": true,
-      "flag": "--train_multiple",
-      "short_flag": "-m",
-      "action": "store_true",
-      "help": "Train top model & mLSTM",
-      "default": "False",
-      "ui_exposed": true
     }
   ],
   "icon": "",
@@ -86,7 +86,7 @@
   "description": "A ChRIS plugin to run UniRep analysis",
   "documentation": "https://github.com/FNNDSC/pl-unirep_analysis",
   "license": "MIT",
-  "version": "0.2.0",
+  "version": "0.2.2",
   "selfpath": "/usr/local/bin",
   "selfexec": "unirep_analysis",
   "execshell": "/docker-entrypoint.sh",

@@ -26,7 +26,7 @@ FROM alpine:latest as download
 WORKDIR /tmp
 RUN apk add --no-cache aws-cli \
     && rm -rf /var/cache/apk/*
-    
+
 RUN aws s3 sync --no-sign-request --quiet s3://unirep-public/1900_weights/ /tmp/data/1900_weights/
 RUN aws s3 sync --no-sign-request --quiet s3://unirep-public/256_weights/ /tmp/data/256_weights/
 RUN aws s3 sync --no-sign-request --quiet s3://unirep-public/64_weights/ /tmp/data/64_weights/
@@ -43,7 +43,7 @@ WORKDIR /usr/local/src
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
-COPY . . 
+COPY . .
 RUN pip install .
 
 COPY docker-entrypoint.sh /

@@ -25,7 +25,7 @@ def sample_with_temp(logits, t):
     """
     t_adjusted = logits / t  # broadcast temperature normalization
     softed = tf.nn.softmax(t_adjusted)
-    
+
     # Make a categorical distribution from the softmax and sample
     return tf.distributions.Categorical(probs=softed).sample()
 
@@ -89,7 +89,7 @@ class mLSTMCell1900(tf.nn.rnn_cell.RNNCell):
             gx_init = np.load(os.path.join(self._model_path, "rnn_mlstm_mlstm_gx:0.npy"))
             gh_init = np.load(os.path.join(self._model_path, "rnn_mlstm_mlstm_gh:0.npy"))
             gmx_init = np.load(os.path.join(self._model_path, "rnn_mlstm_mlstm_gmx:0.npy"))
-            gmh_init = np.load(os.path.join(self._model_path, "rnn_mlstm_mlstm_gmh:0.npy"))        
+            gmh_init = np.load(os.path.join(self._model_path, "rnn_mlstm_mlstm_gmh:0.npy"))
             wx = tf.get_variable(
                 "wx", initializer=wx_init)
             wh = tf.get_variable(
@@ -255,7 +255,7 @@ class mLSTMCellStackNPY(tf.nn.rnn_cell.RNNCell):
             gx_init=np.load(join(bs + "{0}_mlstm_stack{1}_gx:0.npy".format(i,i))),
             gh_init=np.load(join(bs + "{0}_mlstm_stack{1}_gh:0.npy".format(i,i))),
             gmx_init=np.load(join(bs + "{0}_mlstm_stack{1}_gmx:0.npy".format(i,i))),
-            gmh_init=np.load(join(bs + "{0}_mlstm_stack{1}_gmh:0.npy".format(i,i)))      
+            gmh_init=np.load(join(bs + "{0}_mlstm_stack{1}_gmh:0.npy".format(i,i)))
                  ) for i in range(self._num_layers)]
         if self._dropout:
             layers = [
@@ -267,7 +267,7 @@ class mLSTMCellStackNPY(tf.nn.rnn_cell.RNNCell):
     def state_size(self):
         # The state is a tuple of c and h
         return (
-            tuple(self._num_units for _ in range(self._num_layers)), 
+            tuple(self._num_units for _ in range(self._num_layers)),
             tuple(self._num_units for _ in range(self._num_layers))
             )
 
@@ -287,7 +287,7 @@ class mLSTMCellStackNPY(tf.nn.rnn_cell.RNNCell):
 
         # Unpack the state tuple
         c_prev, h_prev = state
-        
+
         new_outputs = []
         new_cs = []
         new_hs = []
@@ -299,7 +299,7 @@ class mLSTMCellStackNPY(tf.nn.rnn_cell.RNNCell):
             new_outputs.append(h)
             new_cs.append(c)
             new_hs.append(h_state)
-        
+
         if self._res_connect:
             # Make sure number of layers does not affect the scale of the output
             scale_factor = tf.constant(1 / float(self._num_layers))
@@ -309,7 +309,7 @@ class mLSTMCellStackNPY(tf.nn.rnn_cell.RNNCell):
 
         return final_output, (tuple(new_cs), tuple(new_hs))
 
-    
+
 class babbler1900():
 
     def __init__(self,
@@ -362,7 +362,7 @@ class babbler1900():
             swap_memory=True,
             parallel_iterations=1
         )
-        
+
         # If we are training a model on top of the rep model, we need to access
         # the final_hidden rep from output. Recall we are padding these sequences
         # to max length, so the -1 position will not necessarily be the right rep.
@@ -392,10 +392,10 @@ class babbler1900():
             self._zero_state = sess.run(zero_state)
             self._single_zero = sess.run(single_zero)
 
-     
+
     def get_rep(self,seq):
         """
-        Input a valid amino acid sequence, 
+        Input a valid amino acid sequence,
         outputs a tuple of average hidden, final hidden, final cell representation arrays.
         Unfortunately, this method accepts one sequence at a time and is as such quite
         slow.
@@ -433,13 +433,13 @@ class babbler1900():
         with tf.Session() as sess:
             initialize_uninitialized(sess)
             int_seed = aa_seq_to_int(seed.strip())[:-1]
-        
+
             # No need for padding because this is a single element
             seed_samples, final_state_ = sess.run(
-                [self._sample, self._final_state], 
+                [self._sample, self._final_state],
                 feed_dict={
                     self._minibatch_x_placeholder: [int_seed],
-                    self._initial_state_placeholder: self._zero_state, 
+                    self._initial_state_placeholder: self._zero_state,
                     self._batch_size_placeholder: 1,
                     self._temp_placeholder: temp
                 }
@@ -447,40 +447,40 @@ class babbler1900():
             # Just the actual character prediction
             pred_int = seed_samples[0, -1] + 1
             seed = seed + int_to_aa[pred_int]
-        
+
             for i in range(length - len(seed)):
                 pred_int, final_state_ = sess.run(
-                    [self._sample, self._final_state], 
+                    [self._sample, self._final_state],
                     feed_dict={
                         self._minibatch_x_placeholder: [[pred_int]],
-                        self._initial_state_placeholder: final_state_, 
+                        self._initial_state_placeholder: final_state_,
                         self._batch_size_placeholder: 1,
                         self._temp_placeholder: temp
                     }
                 )
                 pred_int = pred_int[0, 0] + 1
                 seed = seed + int_to_aa[pred_int]
-        return seed        
-        
+        return seed
+
     def get_rep_ops(self):
         """
         Return tensorflow operations for the final_hidden state and placeholder.
         POSTPONED: Implement avg. hidden
         """
         return self._top_final_hidden, self._minibatch_x_placeholder, self._batch_size_placeholder, self._seq_length_placeholder, self._initial_state_placeholder
-        
+
     def get_babbler_ops(self):
         """
-        Return tensorflow operations for 
+        Return tensorflow operations for
         the logits, masked loss, minibatch_x placeholder, minibatch y placeholder, batch_size placeholder, initial_state placeholder
-        Use if you plan on using babbler1900 as an initialization for another babbler, 
+        Use if you plan on using babbler1900 as an initialization for another babbler,
         eg for fine tuning the babbler to babble a differenct distribution.
         """
         return self._logits, self._loss, self._minibatch_x_placeholder, self._minibatch_y_placeholder, self._batch_size_placeholder, self._initial_state_placeholder
 
     def dump_weights(self,sess,dir_name="./1900_weights"):
         """
-        Saves the weights of the model in dir_name in the format required 
+        Saves the weights of the model in dir_name in the format required
         for loading in this module. Must be called within a tf.Session
         For which the weights are already initialized.
         """
@@ -491,13 +491,13 @@ class babbler1900():
             print(name)
             print(value)
             np.save(os.path.join(dir_name,name.replace('/', '_') + ".npy"), np.array(value))
-            
+
 
 
     def format_seq(self,seq,stop=False):
         """
         Takes an amino acid sequence, returns a list of integers in the codex of the babbler.
-        Here, the default is to strip the stop symbol (stop=False) which would have 
+        Here, the default is to strip the stop symbol (stop=False) which would have
         otherwise been added to the end of the sequence. If you are trying to generate
         a rep, do not include the stop. It is probably best to ignore the stop if you are
         co-tuning the babbler and a top model as well.
@@ -514,7 +514,7 @@ class babbler1900():
         Read sequences from a filepath, batch them into buckets of similar lengths, and
         pad out to the longest sequence.
         Upper, lower and interval define how the buckets are created.
-        Any sequence shorter than lower will be grouped together, as with any greater 
+        Any sequence shorter than lower will be grouped together, as with any greater
         than upper. Interval defines the "walls" of all the other buckets.
         WARNING: Define large intervals for small datasets because the default behavior
         is to repeat the same sequence to fill a batch. If there is only one sequence
@@ -541,7 +541,7 @@ class babbler1900():
         IF USING IN COMBINATION WITH format_seq then set stop=True there.
         Return a list of batch, target tuples.
         The input (array-like) should
-        look like 
+        look like
         1. . . . . . . . sequence_length
         .
         .
@@ -630,7 +630,7 @@ class babbler256(babbler1900):
             swap_memory=True,
             parallel_iterations=1
         )
-        
+
         # If we are training a model on top of the rep model, we need to access
         # the final_hidden rep from output. Recall we are padding these sequences
         # to max length, so the -1 position will not necessarily be the right rep.
@@ -662,9 +662,9 @@ class babbler256(babbler1900):
 
     def get_rep(self,seq):
         """
-        get_rep needs to be minorly adjusted to accomadate the different state size of the 
+        get_rep needs to be minorly adjusted to accomadate the different state size of the
         stack.
-        Input a valid amino acid sequence, 
+        Input a valid amino acid sequence,
         outputs a tuple of average hidden, final hidden, final cell representation arrays.
         Unfortunately, this method accepts one sequence at a time and is as such quite
         slow.
@@ -748,7 +748,7 @@ class babbler64(babbler256):
             swap_memory=True,
             parallel_iterations=1
         )
-        
+
         # If we are training a model on top of the rep model, we need to access
         # the final_hidden rep from output. Recall we are padding these sequences
         # to max length, so the -1 position will not necessarily be the right rep.
