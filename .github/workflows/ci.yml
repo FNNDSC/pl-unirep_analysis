@@ -81,7 +81,7 @@ jobs:
           repository: ${{ steps.determine.outputs.repo }}
 
       - name: Upload to ChRIS Store
-        if: github.event_name == 'release'
+        if: "!endsWith(steps.determine.outputs.dock_image, ':latest')"
         uses: FNNDSC/chrisstore-action@master
         with:
           descriptor_file: chris_plugin_info.json
