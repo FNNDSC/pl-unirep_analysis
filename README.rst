@@ -78,7 +78,7 @@ Arguments
         [--batch_size <batchSize>]
         This represents the batch size of the babbler. Default value is 12.
 
-        [--learning_date <learningRate>]
+        [--learning_rate <learningRate>]
         Needed to build the model. Default is 0.001.
 
         [--inputFile <inputFileToProcess>]
