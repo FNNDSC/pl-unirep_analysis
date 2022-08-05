@@ -52,7 +52,7 @@ Synopsis
 Description
 -----------
 
-``unirep_analysis.py`` is a ChRIS-based application that is capable of training, inferencing representations, generative modelling aka "babbling", and data management
+``unirep_analysis`` is a ChRIS-based "plugin" application that is capable of inferencing protein sequence representations and generative modelling aka "babbling".
 
 TL;DR
 ------
