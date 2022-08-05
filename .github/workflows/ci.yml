@@ -77,7 +77,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
           short-description: ${{ steps.pluginmeta.outputs.title }}
-          readme-filepath: ./README.md
+          readme-filepath: ./README.rst
           repository: ${{ steps.determine.outputs.repo }}
 
       - name: Upload to ChRIS Store
