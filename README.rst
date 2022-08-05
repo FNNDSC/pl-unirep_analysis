@@ -40,7 +40,7 @@ Synopsis
         python unirep_analysis                                              \
                                     [--dimension <modelDimension>]          \
                                     [--batch_size <batchSize>]              \
-                                    [--leaning_rate <learningRate>]         \
+                                    [--learning_rate <learningRate>]        \
                                     [--inputFile <inputFileToProcess>]      \
                                     [--inputGlob <inputGlobPattern>]        \
                                     [--modelWeightPath <pathToWeights>]     \
