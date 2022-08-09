@@ -80,7 +80,7 @@
     },
     {
       "name": "topModelTraining",
-      "type": "boolean",
+      "type": "bool",
       "optional": true,
       "flag": "--topModelTraining",
       "short_flag": "-t",
@@ -91,7 +91,7 @@
     },
     {
       "name": "jointModelTraining",
-      "type": "boolean",
+      "type": "bool",
       "optional": true,
       "flag": "--jointModelTraining",
       "short_flag": "-j",
@@ -108,7 +108,7 @@
   "description": "A ChRIS plugin to run UniRep analysis",
   "documentation": "https://github.com/FNNDSC/pl-unirep_analysis",
   "license": "MIT",
-  "version": "0.2.9",
+  "version": "0.3.0",
   "selfpath": "/usr/local/bin",
   "selfexec": "unirep_analysis",
   "execshell": "/docker-entrypoint.sh",
