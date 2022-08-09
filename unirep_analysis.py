@@ -131,7 +131,7 @@ def main():
 
   args = parser.parse_args()
 
-  print('Version: 0.2.8')
+  print('Version: 0.2.9')
   for k,v in args.__dict__.items():
             print("%20s:  -->%s<--" % (k, v))
 

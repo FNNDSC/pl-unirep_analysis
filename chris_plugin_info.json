@@ -77,6 +77,28 @@
       "help": "Output file for the analysis",
       "default": "format.txt",
       "ui_exposed": true
+    },
+    {
+      "name": "topModelTraining",
+      "type": "boolean",
+      "optional": true,
+      "flag": "--topModelTraining",
+      "short_flag": "-t",
+      "action": "store_true",
+      "help": "Train top model only",
+      "default": "False",
+      "ui_exposed": true
+    },
+    {
+      "name": "jointModelTraining",
+      "type": "boolean",
+      "optional": true,
+      "flag": "--jointModelTraining",
+      "short_flag": "-j",
+      "action": "store_true",
+      "help": "Train top model & mLSTM",
+      "default": "False",
+      "ui_exposed": true
     }
   ],
   "icon": "",
@@ -86,7 +108,7 @@
   "description": "A ChRIS plugin to run UniRep analysis",
   "documentation": "https://github.com/FNNDSC/pl-unirep_analysis",
   "license": "MIT",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "selfpath": "/usr/local/bin",
   "selfexec": "unirep_analysis",
   "execshell": "/docker-entrypoint.sh",

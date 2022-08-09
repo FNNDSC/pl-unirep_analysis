@@ -45,6 +45,8 @@ Synopsis
                                     [--inputGlob <inputGlobPattern>]        \
                                     [--modelWeightPath <pathToWeights>]     \
                                     [--outputFile <resultOutputFile>]       \
+                                    [--topModelTraining]                    \
+                                    [--jointModelTraining]                  \
                                     [--json]                                \
                                     <inputDir>
                                     <outputDir>
@@ -98,6 +100,12 @@ Arguments
 
         [--outputFile <resultOutputFile>]
         The name of the output or formatted 'txt' file. Default name is 'format.txt'
+        
+        [--topModelTraining]
+        If specified, run a training model just optimizing top model
+        
+        [--jointModelTraing]
+        If specified, jointly train top model and mLSTM
 
         [-h]
         Display inline help
