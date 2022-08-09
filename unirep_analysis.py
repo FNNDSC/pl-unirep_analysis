@@ -80,6 +80,18 @@ parser.add_argument('--outputFile','-o',
                     dest        = 'outputFile',
                     default     = 'format.txt',
                     help        = "Output file for the analysis")
+                    
+parser.add_argument('--topModelTraining','-t',
+                    action        = 'store_true',
+                    dest        = 'topModelTraining',
+                    default     = False,
+                    help        = "Train top model")
+                    
+parser.add_argument('--jointModelTraining','-j',
+                    action        = 'store_true',
+                    dest        = 'jointModelTraining',
+                    default     = False,
+                    help        = "Joinly train top model & mLSTM")
 
 
 parser.add_argument('--json', action=JsonAction, dest='json',
@@ -144,7 +156,15 @@ def main():
 
   logger.info("Preparing model")
   prepare_model(args)
-
+  
+  if(args.topModelTraining):
+    logger.info("Training top model")
+    train_model(args,batch)
+    
+  if(args.jointModelTraining):
+    logger.info("Training top model & mLSTM")
+    joint_train_model(args,batch)
+    
 def get_data(args):
 
   global data_babbler
@@ -244,7 +264,9 @@ def format_data(args):
       with open(interim_format_path, "w") as destination:
           for i,seq in enumerate(source):
               seq = seq.strip()
-              if b.is_valid_seq(seq) and len(seq) < 275:
+              print("Sequence validity is {}".format(b.is_valid_seq(seq)))
+              print("Sequence length validity is {}".format(len(seq)<275))
+              if b.is_valid_seq(seq):# and len(seq) < 275:
                   formatted = ",".join(map(str,b.format_seq(seq)))
                   destination.write(formatted)
                   destination.write('\n')
